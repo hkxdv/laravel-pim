@@ -1,0 +1,99 @@
+{
+  "$schema": "https://getcomposer.org/schema.json",
+  "name": "laravel/backend",
+  "type": "project",
+  "require": {
+    "php": "^8.4",
+    "inertiajs/inertia-laravel": "^2.0.10",
+    "jenssegers/agent": "^2.6.4",
+    "laravel/framework": "^12.32.5",
+    "laravel/sanctum": "^4.2",
+    "laravel/scout": "^10.19",
+    "laravel/tinker": "^2.10.1",
+    "nunomaduro/essentials": "^1.0",
+    "nwidart/laravel-modules": ">=12.0.4",
+    "spatie/laravel-activitylog": "^4.10.2",
+    "spatie/laravel-data": "^4.17.1",
+    "spatie/laravel-permission": "^6.21",
+    "tightenco/ziggy": "^2.6",
+    "typesense/typesense-php": "^5.1"
+  },
+  "require-dev": {
+    "fakerphp/faker": "^1.24.1",
+    "driftingly/rector-laravel": "^2.0.7",
+    "laravel/boost": "^1.2.1",
+    "laravel/pail": "^1.2.3",
+    "laravel/pint": "^1.25.1",
+    "laravel/telescope": "^5.13",
+    "mockery/mockery": "^1.6.12",
+    "nunomaduro/collision": "^8.8.2",
+    "pestphp/pest": "^4.1.2",
+    "phpstan/phpstan": "^2.1",
+    "larastan/larastan": "^3.7",
+    "rector/rector": "^2.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Database\\Factories\\": "../database/factories/",
+      "Database\\Seeders\\": "../database/seeders/"
+    },
+    "files": [
+      "app/Helpers/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump"
+    ],
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ],
+    "package-discover": [
+      "@php artisan package:discover --ansi"
+    ],
+    "dev": [
+      "Composer\\Config::disableProcessTimeout",
+      "concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"bun run dev\" --names='server,queue,vite'"
+    ],
+    "pint": "vendor/bin/pint",
+    "pint:test": "vendor/bin/pint --test",
+    "test": "vendor/bin/pest",
+    "test:types": "vendor/bin/phpstan analyze --configuration=phpstan.neon --memory-limit=512M",
+    "test:type-coverage": "vendor/bin/pest --type-coverage --min=100",
+    "lint": [
+      "vendor/bin/rector --dry-run",
+      "vendor/bin/pint --test"
+    ],
+    "update:requirements": "composer update -W && bun --cwd ../frontend i && bun --cwd ../frontend run build"
+  },
+  "extra": {
+    "laravel": {
+      "dont-discover": [
+        "laravel/telescope"
+      ]
+    },
+    "merge-plugin": {
+      "include": [
+        "Modules/*/composer.json"
+      ]
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "php-http/discovery": true,
+      "wikimedia/composer-merge-plugin": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Admin",
+  "alias": "admin",
+  "priority": 0,
+  "providers": [
+    "Modules\\Admin\\App\\Providers\\AdminServiceProvider",
+    "Modules\\Admin\\App\\Providers\\RouteServiceProvider"
+  ]
+}
