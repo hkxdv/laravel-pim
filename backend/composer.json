@@ -7,8 +7,9 @@
     "inertiajs/inertia-laravel": "^2.0.10",
     "jenssegers/agent": "^2.6.4",
     "laravel/framework": "^12.32.5",
+    "laravel/mcp": "^0.3.0",
     "laravel/sanctum": "^4.2",
-    "laravel/scout": "^10.19",
+    "laravel/scout": "^10.20",
     "laravel/tinker": "^2.10.1",
     "nunomaduro/essentials": "^1.0",
     "nwidart/laravel-modules": ">=12.0.4",
@@ -57,20 +58,15 @@
     "package-discover": [
       "@php artisan package:discover --ansi"
     ],
-    "dev": [
-      "Composer\\Config::disableProcessTimeout",
-      "concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"bun run dev\" --names='server,queue,vite'"
-    ],
-    "pint": "vendor/bin/pint",
-    "pint:test": "vendor/bin/pint --test",
-    "test": "vendor/bin/pest",
-    "test:types": "vendor/bin/phpstan analyze --configuration=phpstan.neon --memory-limit=512M",
-    "test:type-coverage": "vendor/bin/pest --type-coverage --min=100",
+    "pint": "php vendor/bin/pint",
+    "pint:test": "php vendor/bin/pint --test",
+    "test": "php vendor/bin/pest",
+    "test:types": "php vendor/bin/phpstan analyze --configuration=phpstan.neon --memory-limit=512M",
+    "test:type-coverage": "php vendor/bin/pest --type-coverage --min=100",
     "lint": [
-      "vendor/bin/rector --dry-run",
-      "vendor/bin/pint --test"
-    ],
-    "update:requirements": "composer update -W && bun --cwd ../frontend i && bun --cwd ../frontend run build"
+      "php vendor/bin/rector --dry-run",
+      "php vendor/bin/pint --test"
+    ]
   },
   "extra": {
     "laravel": {
