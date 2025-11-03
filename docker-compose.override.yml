@@ -1,0 +1,95 @@
+# ==============================================================================
+# ARCHIVO DE CONFIGURACIÓN PARA DESARROLLO
+# ==============================================================================
+#
+# Este archivo contiene configuraciones específicas para el entorno de desarrollo.
+# Docker Compose lo aplica automáticamente sobre 'docker-compose.yml'.
+#
+# - Monta el código fuente local para recarga en vivo.
+# - Expone el puerto de la base de datos para clientes GUI.
+# - Monta configuraciones de PHP para depuración (Xdebug).
+# - Incluye configuraciones de seguridad para PostgreSQL.
+#
+
+services:
+  backend:
+    volumes:
+      - ./backend:/var/www/backend
+      - ./database:/var/www/database
+      - ./.env.docker:/var/www/.env.docker:ro
+      - ./docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./docker/php/conf.d/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+
+  # ==========================================================================
+  # CONFIGURACIÓN LEGACY - NO EN USO ACTUALMENTE
+  # ==========================================================================
+  # Esta configuración está deshabilitada porque actualmente el frontend
+  # se ejecuta directamente en el host con "bun run dev:fe" como muestra
+  # el comando dk:dev en package.json que ejecuta dev:fe:docker en el host.
+  # Mantenemos esta configuración como referencia por si se desea volver
+  # a contenedorizar el frontend en el futuro.
+  #
+  #   frontend:
+  #     build:
+  #       context: .
+  #       dockerfile: docker/frontend/Dockerfile
+  #     container_name: laravel-pim-frontend
+  #     volumes:
+  #       - ./frontend:/app/frontend
+  #       # Monta el directorio backend para que laravel-vite-plugin pueda escribir el archivo 'hot'.
+  #       - ./backend:/app/backend
+  #       # Usa un volumen anónimo para evitar que node_modules del host sobreescriba los del contenedor.
+  #       # Esto es crucial para el rendimiento y para evitar problemas con binarios específicos del SO.
+  #       - /app/frontend/node_modules
+  #     ports:
+  #       - "5173:5173"
+  #     networks:
+  #       - laravel-pim-network
+  #     # Sobreescribe el CMD del Dockerfile para usar el script 'dev:docker' que incluye la bandera --host,
+  #     # haciendo que el servidor Vite sea accesible desde fuera del contenedor.
+  #     command: bun run dev:docker
+  # ==========================================================================
+
+  nginx:
+    volumes:
+      - ./backend:/var/www/backend # Necesario para que Nginx acceda a assets públicos en desarrollo
+
+  db:
+    ports:
+      - "5432:5432" # Exponer puerto de PostgreSQL solo para desarrollo
+
+  # Servicio de administración de PostgreSQL (pgAdmin)
+  pgadmin:
+    build:
+      context: .
+      dockerfile: docker/pgadmin/Dockerfile
+    container_name: laravel-pim-pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5050:80" # Acceder vía http://localhost:5050
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    networks:
+      - laravel-pim-network
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "256M"
+        reservations:
+          memory: "64M"
+    restart: unless-stopped
+
+volumes:
+  pgadmin-data:
+    driver: local
