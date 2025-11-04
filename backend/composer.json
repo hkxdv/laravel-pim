@@ -1,6 +1,6 @@
 {
   "$schema": "https://getcomposer.org/schema.json",
-  "name": "laravel/backend",
+  "name": "laravel/pim-backend",
   "type": "project",
   "require": {
     "php": "^8.4",

@@ -142,9 +142,11 @@ return [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
-            // 'users' => [
-            //     'filterableAttributes'=> ['id', 'name', 'email'],
-            // ],
+            'products' => [
+                'searchableAttributes' => ['name', 'sku', 'brand', 'model'],
+                'filterableAttributes' => ['brand', 'model', 'is_active'],
+                'sortableAttributes' => ['created_at', 'updated_at', 'price', 'stock'],
+            ],
         ],
     ],
 
@@ -183,28 +185,30 @@ return [
         ],
         // 'max_total_results' => env('TYPESENSE_MAX_TOTAL_RESULTS', 1000),
         'model-settings' => [
-            // User::class => [
-            //     'collection-schema' => [
-            //         'fields' => [
-            //             [
-            //                 'name' => 'id',
-            //                 'type' => 'string',
-            //             ],
-            //             [
-            //                 'name' => 'name',
-            //                 'type' => 'string',
-            //             ],
-            //             [
-            //                 'name' => 'created_at',
-            //                 'type' => 'int64',
-            //             ],
-            //         ],
-            //         'default_sorting_field' => 'created_at',
-            //     ],
-            //     'search-parameters' => [
-            //         'query_by' => 'name'
-            //     ],
-            // ],
+            App\Models\Product::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        ['name' => 'id', 'type' => 'string'],
+                        ['name' => 'sku', 'type' => 'string'],
+                        ['name' => 'name', 'type' => 'string'],
+                        ['name' => 'brand', 'type' => 'string'],
+                        ['name' => 'model', 'type' => 'string'],
+                        ['name' => 'barcode', 'type' => 'string'],
+                        ['name' => 'price', 'type' => 'float'],
+                        ['name' => 'stock', 'type' => 'int32'],
+                        ['name' => 'is_active', 'type' => 'bool'],
+                        ['name' => 'created_at', 'type' => 'int64'],
+                        ['name' => 'updated_at', 'type' => 'int64'],
+                        ['name' => 'metadata', 'type' => 'object'],
+                    ],
+                    // Habilitar campos anidados para permitir tipo 'object' en metadata
+                    'enable_nested_fields' => true,
+                    'default_sorting_field' => 'created_at',
+                ],
+                'search-parameters' => [
+                    'query_by' => 'name,sku,brand,model',
+                ],
+            ],
         ],
     ],
 

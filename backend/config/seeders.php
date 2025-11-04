@@ -11,11 +11,11 @@ $max = $max > 0 ? min($max, 50) : 10;
 $staff = [];
 for ($i = 1; $i <= $max; $i++) {
     $staff[] = [
-        'email' => env("USER_STAFF_{$i}_EMAIL"),
-        'password' => env("USER_STAFF_{$i}_PASSWORD"),
-        'name' => env("USER_STAFF_{$i}_NAME", "Usuario {$i}"),
-        'role' => env("USER_STAFF_{$i}_ROLE"),
-        'force_password_update' => filter_var(env("USER_STAFF_{$i}_FORCE_PASSWORD_UPDATE", false), FILTER_VALIDATE_BOOL),
+        'email' => env(sprintf('USER_STAFF_%d_EMAIL', $i)),
+        'password' => env(sprintf('USER_STAFF_%d_PASSWORD', $i)),
+        'name' => env(sprintf('USER_STAFF_%d_NAME', $i), 'Usuario '.$i),
+        'role' => env(sprintf('USER_STAFF_%d_ROLE', $i)),
+        'force_password_update' => filter_var(env(sprintf('USER_STAFF_%d_FORCE_PASSWORD_UPDATE', $i), false), FILTER_VALIDATE_BOOL),
     ];
 }
 

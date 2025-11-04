@@ -29,6 +29,7 @@ return RectorConfig::configure()
     )
     ->withPaths([
         __DIR__.'/app',
+        __DIR__.'/Modules',
         __DIR__.'/bootstrap/app.php',
         __DIR__.'/config',
         __DIR__.'/../database',
@@ -37,6 +38,12 @@ return RectorConfig::configure()
     ])
     ->withSkip([
         AddOverrideAttributeToOverriddenMethodsRector::class,
+        RectorLaravel\Rector\ArrayDimFetch\EnvVariableToEnvHelperRector::class => [
+            __DIR__.'/bootstrap/app.php',
+        ],
+        RectorLaravel\Rector\ArrayDimFetch\ServerVariableToRequestFacadeRector::class => [
+            __DIR__.'/bootstrap/app.php',
+        ],
     ])
     ->withPreparedSets(
         deadCode: true,
@@ -44,6 +51,7 @@ return RectorConfig::configure()
         typeDeclarations: true,
         privatization: true,
         earlyReturn: true,
-        strictBooleans: true,
+        codingStyle: true,
     )
-    ->withPhpSets();
+    // Set explicit PHP version to avoid composer.json lookup from CWD
+    ->withPhpSets(php84: true);

@@ -1,6 +1,7 @@
 {
-    "Admin": true,
-    "Module01": true,
-    "Module02": true,
-    "Auth": true
+  "Admin": true,
+  "Module01": true,
+  "Module02": true,
+  "Module03": true,
+  "Auth": true
 }

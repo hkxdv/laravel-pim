@@ -78,6 +78,10 @@ export default [
       '@typescript-eslint/no-unsafe-member-access': 'warn',
       '@typescript-eslint/no-unsafe-return': 'warn',
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      // Temporarily disable due to crash: "typeParameters.params is not iterable"
+      // in @typescript-eslint/unified-signatures with TS 5.9 / ESLint 9.
+      // Re-enable once upstream fix is available.
+      '@typescript-eslint/unified-signatures': 'off',
       ...jsxA11y.configs.recommended.rules,
       'import/first': 'error',
       'import/no-duplicates': ['error', { 'prefer-inline': true }],
