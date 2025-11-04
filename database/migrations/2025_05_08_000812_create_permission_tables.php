@@ -86,6 +86,7 @@ return new class extends Migration
                 $table->unsignedBigInteger($teamKey)->nullable();
                 $table->index($teamKey, 'roles_team_foreign_key_index');
             }
+
             $table->string('name');
             // For MyISAM use string('name', 225);
             // (or 166 for InnoDB with Redundant/Compact row format)
@@ -118,6 +119,7 @@ return new class extends Migration
         ) use ($permissionsTable, $columnNames, $pivotPermission, $teams): void {
             $table->unsignedBigInteger($pivotPermission);
             $table->string('model_type');
+
             $modelMorphKey = $columnNames['model_morph_key'];
             throw_unless(
                 is_string($modelMorphKey),
@@ -172,6 +174,7 @@ return new class extends Migration
         ) use ($rolesTable, $columnNames, $pivotRole, $teams): void {
             $table->unsignedBigInteger($pivotRole);
             $table->string('model_type');
+
             $modelMorphKey = $columnNames['model_morph_key'];
             throw_unless(
                 is_string($modelMorphKey),
@@ -276,7 +279,7 @@ return new class extends Migration
             throw_if(
                 ! isset($tableNames[$key]) || ! is_string($tableNames[$key]),
                 RuntimeException::class,
-                "Invalid table name for '{$key}'"
+                sprintf("Invalid table name for '%s'", $key)
             );
         }
 

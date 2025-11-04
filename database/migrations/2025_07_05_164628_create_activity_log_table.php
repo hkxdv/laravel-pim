@@ -31,6 +31,7 @@ return new class extends Migration
                 $table->index('log_name');
             });
     }
+
     public function down(): void
     {
         /** @var string|null $connection */

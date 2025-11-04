@@ -97,6 +97,7 @@ final class SystemUsersSeeder extends Seeder
                             'password_changed_at' => now(),
                         ])->save();
                     }
+
                     $updated++;
                 }
             }
@@ -111,7 +112,7 @@ final class SystemUsersSeeder extends Seeder
                     }
                 } catch (Throwable $e) {
                     $this->command->warn(
-                        "No se pudo asignar el rol '{$roleName}' al usuario {$email}: ".$e->getMessage()
+                        sprintf("No se pudo asignar el rol '%s' al usuario %s: ", $roleName, $email).$e->getMessage()
                     );
                 }
             }
@@ -128,7 +129,7 @@ final class SystemUsersSeeder extends Seeder
         );
 
         $this->command->info(
-            "Usuarios creados: {$created}, actualizados: {$updated}, roles asignados: {$assignedRoles}."
+            sprintf('Usuarios creados: %d, actualizados: %d, roles asignados: %d.', $created, $updated, $assignedRoles)
         );
         $this->command->info('Seeder de usuarios del sistema completado.');
     }

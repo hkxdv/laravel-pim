@@ -39,6 +39,7 @@ final class RolePermissionSeeder extends Seeder
                 'guard_name' => 'staff',
             ]);
         }
+
         $this->command->info('Permisos creados.');
 
         // CREAR ROLES Y ASIGNAR PERMISOS
