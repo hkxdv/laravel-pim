@@ -1,0 +1,35 @@
+name: PHPStan
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+
+jobs:
+  phpstan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+          coverage: none
+      - name: Install dependencies (backend)
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Run PHPStan
+        working-directory: backend
+        run: |
+          composer run test:types -- --error-format=table | tee phpstan-report.txt
+      - name: Upload PHPStan report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpstan-report
+          path: backend/phpstan-report.txt

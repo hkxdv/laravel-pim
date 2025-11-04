@@ -1,0 +1,37 @@
+name: Pest
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+
+jobs:
+  pest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+          coverage: none
+      - name: Install dependencies (backend)
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Setup Bun (for frontend build)
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies (frontend)
+        working-directory: frontend
+        run: bun install --no-progress
+      - name: Build frontend assets
+        working-directory: frontend
+        run: bun run build
+      - name: Run Pest
+        working-directory: backend
+        run: composer run test

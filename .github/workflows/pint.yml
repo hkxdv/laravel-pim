@@ -1,0 +1,47 @@
+name: Format PHP (Pint)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+  pull_request:
+    paths:
+      - "backend/**"
+
+permissions:
+  contents: write
+
+jobs:
+  pint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+
+      - name: Install Composer dependencies
+        working-directory: ./backend
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run Pint
+        working-directory: ./backend
+        run: |
+          ./vendor/bin/pint | tee pint-report.txt
+      - name: Upload Pint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pint-report
+          path: backend/pint-report.txt
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: Format PHP files with Pint (backend + database)"
+          file_pattern: |
+            backend/**/*.php
+            database/**/*.php

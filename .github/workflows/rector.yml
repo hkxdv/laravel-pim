@@ -1,0 +1,35 @@
+name: Rector (dry-run)
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+
+jobs:
+  rector:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+          coverage: none
+      - name: Install dependencies (backend)
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Run Rector (dry-run)
+        working-directory: backend
+        run: |
+          composer run lint | tee rector-report.txt
+      - name: Upload Rector report
+        uses: actions/upload-artifact@v4
+        with:
+          name: rector-report
+          path: backend/rector-report.txt

@@ -35,7 +35,7 @@ bun.lock
 .env.users
 .env.production.local
 .env.testing
-.github/
 .trae/
 .docker-secrets/
 /act/
+/docs/
