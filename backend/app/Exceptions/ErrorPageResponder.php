@@ -27,6 +27,13 @@ final class ErrorPageResponder
     ): \Symfony\Component\HttpFoundation\Response {
         $status = $e->getStatusCode();
 
+        // Para solicitudes JSON (API), devolver estructura simple en JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => self::friendlyMessage($status, $e->getMessage()),
+            ], $status);
+        }
+
         return self::inertiaErrorPage(
             $status,
             self::friendlyMessage($status, $e->getMessage()),
@@ -48,6 +55,14 @@ final class ErrorPageResponder
     public static function validation(
         Request $request
     ): \Symfony\Component\HttpFoundation\Response {
+        // Para solicitudes JSON (API), devolver estructura con 'message' y 'errors'
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => self::friendlyMessage(422),
+                'errors' => [],
+            ], 422);
+        }
+
         return self::inertiaErrorPage(
             422,
             self::friendlyMessage(422),

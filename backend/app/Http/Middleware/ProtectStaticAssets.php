@@ -23,6 +23,7 @@ final class ProtectStaticAssets
         if (is_string($appUrl) && $appUrl !== '') {
             $allowedDomains[] = $appUrl;
         }
+
         // Puedes agregar más dominios permitidos aquí
         // $allowedDomains[] = 'https://otro-dominio-permitido.com';
 

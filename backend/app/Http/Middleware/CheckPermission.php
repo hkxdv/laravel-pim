@@ -61,15 +61,16 @@ final class CheckPermission
             if ($user->hasPermissionToCross($permission)) {
                 return true;
             }
+
             // Para los roles de super-admin, es crucial pasar el guard correcto.
             if ($user->hasRole(['ADMIN', 'DEV'], $guard)) {
                 return true;
             }
 
             // Fallback a verificación específica de guard si se proporcionó
-            return $guard !== null && $guard !== '' && $guard !== '0'
-                ? $user->hasPermissionTo($permission, $guard)
-                : $user->hasPermissionTo($permission);
+            return in_array($guard, [null, '', '0'], true)
+                ? $user->hasPermissionTo($permission)
+                : $user->hasPermissionTo($permission, $guard);
         }
 
         // Tipos de usuario no compatibles con permisos

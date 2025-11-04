@@ -167,18 +167,6 @@ final class LoginRequest extends FormRequest
     }
 
     /**
-     * Obtiene la URL a la que se debe redirigir después de un inicio de sesión exitoso.
-     */
-    public function getRedirectUrl(): string
-    {
-        $intended = session()->pull('url.intended');
-
-        return is_string($intended)
-            ? $intended
-            : route('internal.dashboard');
-    }
-
-    /**
      * Asegura que la solicitud de inicio de sesión no esté limitada por frecuencia.
      *
      * @throws ValidationException
@@ -233,18 +221,30 @@ final class LoginRequest extends FormRequest
     }
 
     /**
+     * Obtiene la URL a la que se debe redirigir después de un inicio de sesión exitoso.
+     */
+    protected function getRedirectUrl(): string
+    {
+        $intended = session()->pull('url.intended');
+
+        return is_string($intended)
+            ? $intended
+            : route('internal.dashboard');
+    }
+
+    /**
      * Buscar usuario por credenciales en el guard específico.
      *
      * @param  array{email: string, password: string}  $credentials
      */
     private function findUser(array $credentials): ?Authenticatable
     {
-        $provider = Config::get("auth.guards.{$this->guard}.provider");
+        $provider = Config::get(sprintf('auth.guards.%s.provider', $this->guard));
         if (! is_string($provider) || $provider === '') {
             return null;
         }
 
-        $model = Config::get("auth.providers.{$provider}.model");
+        $model = Config::get(sprintf('auth.providers.%s.model', $provider));
         if (! is_string($model) || $model === '' || ! class_exists($model)) {
             return null;
         }

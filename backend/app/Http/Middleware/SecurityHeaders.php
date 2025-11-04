@@ -71,8 +71,15 @@ final class SecurityHeaders
         } */
 
         // Solo aplicar HSTS en producción y si es necesario
-        if (app()->isProduction() && ! $response->headers->has('Strict-Transport-Security') && ! $isErrorOrRedirect) {
-            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        if (
+            app()->isProduction()
+            && ! $response->headers->has('Strict-Transport-Security')
+            && ! $isErrorOrRedirect
+        ) {
+            $response->headers->set(
+                'Strict-Transport-Security',
+                'max-age=31536000; includeSubDomains'
+            );
         }
 
         // 4. Cabeceras de seguridad específicas para archivos descargables
@@ -90,9 +97,17 @@ final class SecurityHeaders
     private function isDownloadResponse(Response $response): bool
     {
         $contentType = $response->headers->get('Content-Type', '');
-        $downloadTypes = ['application/zip', 'application/pdf', 'application/msword', 'application/vnd.ms-excel'];
+        $downloadTypes = [
+            'application/zip',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.ms-excel',
+        ];
 
-        return array_any($downloadTypes, fn ($type): bool => mb_stripos((string) $contentType, (string) $type) !== false);
+        return array_any(
+            $downloadTypes,
+            fn ($type): bool => mb_stripos((string) $contentType, (string) $type) !== false
+        );
     }
 
     /**

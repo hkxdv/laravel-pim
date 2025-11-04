@@ -46,6 +46,7 @@ final class Kernel extends HttpKernel
             \Illuminate\Http\Middleware\SetCacheHeaders::class,
             // Controlar logging para reducir verbosidad
             Middleware\LoggingMiddleware::class,
+            Middleware\RequestHeadersAuditMiddleware::class,
         ],
 
         'api' => [
