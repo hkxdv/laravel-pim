@@ -40,6 +40,7 @@ final class ProfileController extends BaseSettingsController
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
+
         $user->save();
 
         return to_route('internal.settings.profile.edit');

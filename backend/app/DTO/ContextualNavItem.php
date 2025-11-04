@@ -55,6 +55,7 @@ final class ContextualNavItem
             if (! is_string($perm) && ! is_array($perm)) {
                 $errors[] = "'permission' debe ser string o array";
             }
+
             if (is_array($perm)) {
                 foreach ($perm as $p) {
                     if (! is_string($p)) {

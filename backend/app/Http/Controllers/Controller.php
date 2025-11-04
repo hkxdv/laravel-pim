@@ -20,7 +20,9 @@ use Illuminate\Routing\Controller as BaseController;
  */
 abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests;
+    use DispatchesJobs;
+    use ValidatesRequests;
 
     /**
      * Obtiene el usuario autenticado del guard 'staff' o aborta con 403.

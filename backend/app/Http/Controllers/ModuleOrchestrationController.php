@@ -162,7 +162,7 @@ abstract class ModuleOrchestrationController extends Controller
 
         if (is_array($perm)) {
             // Normalizar a lista de strings
-            return array_values(array_filter($perm, 'is_string'));
+            return array_values(array_filter($perm, is_string(...)));
         }
 
         return '';
@@ -215,6 +215,7 @@ abstract class ModuleOrchestrationController extends Controller
                 foreach ($item as $k => $v) {
                     $normalizedItem[(string) $k] = $v;
                 }
+
                 /** @var array<string, mixed> $normalizedItem */
                 $normalized[] = $normalizedItem;
             }
@@ -420,6 +421,7 @@ abstract class ModuleOrchestrationController extends Controller
         foreach ($routeParams as $key => $value) {
             $normalizedRouteParams[(string) $key] = $value;
         }
+
         $routeParams = $normalizedRouteParams;
 
         // Obtener la configuración de navegación del módulo
@@ -443,11 +445,11 @@ abstract class ModuleOrchestrationController extends Controller
         // Re-normalizar configuraciones tras resolver referencias
         /** @var array<int, array<string, mixed>> $panelItemsConfig */
         $panelItemsConfig = is_array($panelItemsConfig)
-            ? array_values(array_filter($panelItemsConfig, 'is_array'))
+            ? array_values(array_filter($panelItemsConfig, is_array(...)))
             : [];
         /** @var array<int, array<string, mixed>> $contextualNavItemsConfig */
         $contextualNavItemsConfig = is_array($contextualNavItemsConfig)
-            ? array_values(array_filter($contextualNavItemsConfig, 'is_array'))
+            ? array_values(array_filter($contextualNavItemsConfig, is_array(...)))
             : [];
         $functionalName = $this->getFunctionalName();
 
@@ -475,9 +477,7 @@ abstract class ModuleOrchestrationController extends Controller
                 moduleSlug: $this->moduleSlug,
                 panelItemsConfig: $panelItemsConfig,
                 contextualNavItemsConfig: $contextualNavItemsConfig,
-                permissionChecker: fn (
-                    string $permission
-                ): bool => $this->can($permission),
+                permissionChecker: $this->can(...),
                 user: $user,
                 functionalName: $functionalName,
                 data: $viewData,
@@ -537,12 +537,12 @@ abstract class ModuleOrchestrationController extends Controller
         if (
             $currentRoute && str_starts_with(
                 $currentRoute,
-                "internal.{$this->moduleSlug}."
+                sprintf('internal.%s.', $this->moduleSlug)
             )
         ) {
             return mb_substr(
                 $currentRoute,
-                mb_strlen("internal.{$this->moduleSlug}.")
+                mb_strlen(sprintf('internal.%s.', $this->moduleSlug))
             );
         }
 
