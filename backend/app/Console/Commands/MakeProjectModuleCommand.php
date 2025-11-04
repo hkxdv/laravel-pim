@@ -40,9 +40,9 @@ final class MakeProjectModuleCommand extends Command
             return 1;
         } */
 
-        $this->info("Creando estructura para el módulo {$moduleName}...");
+        $this->info(sprintf('Creando estructura para el módulo %s...', $moduleName));
 
-        $basePath = base_path("Modules/{$moduleName}");
+        $basePath = base_path('Modules/'.$moduleName);
         $lowerName = Str::lower($moduleName);
 
         // $kebabName = Str::kebab($moduleName); // Línea original
@@ -67,6 +67,7 @@ final class MakeProjectModuleCommand extends Command
             // Para nombres de módulo que no empiezan con "Module", aplicar un kebab case general
             $kebabName = Str::kebab($moduleName);
         }
+
         $studlyName = Str::studly($moduleName);
 
         $functionalNamePlaceholder = $studlyName; // Fallback si no se pide para el frontend
@@ -74,12 +75,12 @@ final class MakeProjectModuleCommand extends Command
         // Eliminar directorio existente si confirmation es 'yes' o 'y' y existe
         if (File::exists($basePath)) {
             $confirm = $this->ask(
-                "El módulo {$moduleName} ya existe. ¿Deseas eliminarlo y continuar? (yes/no)",
+                sprintf('El módulo %s ya existe. ¿Deseas eliminarlo y continuar? (yes/no)', $moduleName),
                 'no'
             ) ?? 'no';
             $confirm = is_string($confirm) ? $confirm : 'no';
             if (Str::lower($confirm) === 'yes' || Str::lower($confirm) === 'y') {
-                $this->info("Eliminando directorio existente: {$basePath}");
+                $this->info('Eliminando directorio existente: '.$basePath);
                 File::deleteDirectory($basePath);
             } else {
                 $this->info('Operación cancelada.');
@@ -103,7 +104,7 @@ final class MakeProjectModuleCommand extends Command
         ];
 
         foreach ($directories as $dir) {
-            $path = "{$basePath}/{$dir}";
+            $path = sprintf('%s/%s', $basePath, $dir);
             if (! File::exists($path)) {
                 File::makeDirectory($path, 0755, true);
                 $this->line(
@@ -120,12 +121,12 @@ final class MakeProjectModuleCommand extends Command
                 ];
 
                 if (in_array($dir, $emptyDirectories)) {
-                    File::put("{$path}/.gitkeep", '');
+                    File::put($path.'/.gitkeep', '');
                     $this->line(
                         'Archivo creado: '.str_replace(
                             base_path(),
                             '',
-                            "{$path}/.gitkeep"
+                            $path.'/.gitkeep'
                         )
                     );
                 }
@@ -179,9 +180,9 @@ final class MakeProjectModuleCommand extends Command
             '$LOWER_NAME$' => $lowerName,
             '$KEBAB_NAME$' => $kebabName,
             '$VENDOR_LOWER$' => config('modules.composer.vendor', 'module'),
-            '$MODULE_NAMESPACE$' => "Modules\\{$studlyName}\\App",
-            '$CONTROLLER_NAMESPACE$' => "Modules\\{$studlyName}\\App\\Http\\Controllers",
-            '$PROVIDER_NAMESPACE$' => "Modules\\{$studlyName}\\App\\Providers",
+            '$MODULE_NAMESPACE$' => sprintf('Modules\%s\App', $studlyName),
+            '$CONTROLLER_NAMESPACE$' => sprintf('Modules\%s\App\Http\Controllers', $studlyName),
+            '$PROVIDER_NAMESPACE$' => sprintf('Modules\%s\App\Providers', $studlyName),
             '$FUNCTIONAL_NAME$' => $functionalNamePlaceholder,
         ];
 
@@ -192,7 +193,7 @@ final class MakeProjectModuleCommand extends Command
 
             if (! File::exists($stubPath)) {
                 $this->warn(
-                    "Stub no encontrado: {$stubPath}. Este archivo no se generará."
+                    sprintf('Stub no encontrado: %s. Este archivo no se generará.', $stubPath)
                 );
 
                 continue;

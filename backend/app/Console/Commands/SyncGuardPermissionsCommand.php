@@ -38,8 +38,8 @@ final class SyncGuardPermissionsCommand extends Command
             $this->info('Sincronización completada exitosamente.');
 
             return Command::SUCCESS;
-        } catch (Exception $e) {
-            $this->error('Error durante la sincronización: '.$e->getMessage());
+        } catch (Exception $exception) {
+            $this->error('Error durante la sincronización: '.$exception->getMessage());
 
             return Command::FAILURE;
         }
