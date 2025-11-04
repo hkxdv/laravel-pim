@@ -59,7 +59,7 @@ final class AccountUpdatedNotification extends Notification implements ShouldQue
                 'Alerta de Seguridad: Cambios en tu cuenta'
             )
             ->greeting(
-                "¡Hola {$nameSafe}!"
+                sprintf('¡Hola %s!', $nameSafe)
             )
             ->line(
                 'Hemos detectado que se han realizado los siguientes cambios en tu cuenta:'
@@ -76,11 +76,11 @@ final class AccountUpdatedNotification extends Notification implements ShouldQue
                 if ($field === 'password') {
                     $message->line('- Se ha cambiado tu contraseña.');
                 } else {
-                    $message->line("- **{$this->getFieldName($field)}**: cambiado de '{$oldValue}' a '{$newValue}'.");
+                    $message->line(sprintf("- **%s**: cambiado de '%s' a '%s'.", $this->getFieldName($field), $oldValue, $newValue));
                 }
             } else {
                 // Si solo tenemos el campo que cambió
-                $message->line("- Se actualizó: **{$this->getFieldName($field)}**.");
+                $message->line(sprintf('- Se actualizó: **%s**.', $this->getFieldName($field)));
             }
         }
 
@@ -89,9 +89,9 @@ final class AccountUpdatedNotification extends Notification implements ShouldQue
             'Estos cambios se realizaron el '.now()->format('d/m/Y').' a las '.now()->format('H:i:s').'.'
         );
 
-        if ($this->ipAddress !== null && $this->ipAddress !== '' && $this->ipAddress !== '0') {
+        if (! in_array($this->ipAddress, [null, '', '0'], true)) {
             $message->line(
-                "Cambios realizados desde la dirección IP: {$this->ipAddress}."
+                sprintf('Cambios realizados desde la dirección IP: %s.', $this->ipAddress)
             );
         }
 
@@ -167,21 +167,27 @@ final class AccountUpdatedNotification extends Notification implements ShouldQue
         if ($field === 'password') {
             return '********';
         }
+
         if (is_array($value)) {
             return implode(', ', $value);
         }
+
         if (is_string($value)) {
             return $value;
         }
+
         if (is_int($value) || is_float($value)) {
             return (string) $value;
         }
+
         if (is_bool($value)) {
             return $value ? 'true' : 'false';
         }
+
         if ($value === null) {
             return 'null';
         }
+
         if (is_object($value) && method_exists($value, '__toString')) {
             return (string) $value;
         }

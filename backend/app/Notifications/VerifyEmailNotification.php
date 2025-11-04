@@ -43,7 +43,7 @@ final class VerifyEmailNotification extends VerifyEmail implements ShouldQueue
                 'Activación de Cuenta y Verificación de Correo'
             )
             ->greeting(
-                "¡Hola, {$displayName}!"
+                sprintf('¡Hola, %s!', $displayName)
             )
             ->line(
                 'Se ha creado una cuenta para ti en nuestro sistema.'

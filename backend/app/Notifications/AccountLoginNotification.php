@@ -73,7 +73,7 @@ final class AccountLoginNotification extends Notification implements ShouldQueue
                 '¡Alerta de seguridad! Nuevo dispositivo detectado'
             )
             ->greeting(
-                "¡Hola {$nameSafe}!"
+                sprintf('¡Hola %s!', $nameSafe)
             )
             ->line(
                 '**Hemos detectado un inicio de sesión desde un dispositivo o ubicación que no habías usado antes.**'
@@ -85,22 +85,22 @@ final class AccountLoginNotification extends Notification implements ShouldQueue
                 '**Detalles del inicio de sesión:**'
             )
             ->line(
-                "- **Fecha y hora:** {$this->time->format('d/m/Y H:i:s')}"
+                '- **Fecha y hora:** '.$this->time->format('d/m/Y H:i:s')
             )
             ->when(
                 $this->ipAddress,
                 fn ($message) => $message->line(
-                    "- **Dirección IP:** {$this->ipAddress}"
+                    '- **Dirección IP:** '.$this->ipAddress
                 )
             )
             ->when(
                 $this->userAgent,
                 fn ($message) => $message->line(
-                    "- **Dispositivo:** {$this->userAgent}"
+                    '- **Dispositivo:** '.$this->userAgent
                 )
             )
             ->line(
-                "- **Ubicación aproximada:** {$this->location}"
+                '- **Ubicación aproximada:** '.$this->location
             );
 
         // --- Acción para Marcar Dispositivo como Confiable (Opcional) ---

@@ -89,7 +89,7 @@ final class ResetPasswordNotification extends Notification implements ShouldQueu
                 'Notificación de Restablecimiento de Contraseña'
             )
             ->greeting(
-                "¡Hola, {$displayName}!"
+                sprintf('¡Hola, %s!', $displayName)
             )
             ->line(
                 'Estás recibiendo este correo porque hemos recibido una solicitud de restablecimiento de contraseña para tu cuenta.'
@@ -99,7 +99,7 @@ final class ResetPasswordNotification extends Notification implements ShouldQueu
                 $this->resetUrl($notifiable)
             )
             ->line(
-                "Este enlace de restablecimiento de contraseña expirará en {$expirationInMinutes} minutos."
+                sprintf('Este enlace de restablecimiento de contraseña expirará en %d minutos.', $expirationInMinutes)
             )
             ->line(
                 'Si no solicitaste este cambio, puedes ignorar este mensaje de forma segura.'
