@@ -29,12 +29,19 @@ use Spatie\Permission\Traits\HasRoles;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  *
- * @use HasFactory<\Database\Factories\StaffUsersFactory>
+ * @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\StaffUsersFactory>
  */
 final class StaffUsers extends Authenticatable implements AuthenticatableUser, MustVerifyEmail
 {
+    use CrossGuardPermissions;
+    use HasApiTokens;
+
     /** @use HasFactory<\Database\Factories\StaffUsersFactory> */
-    use CrossGuardPermissions, HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable;
+    use HasFactory;
+
+    use HasRoles;
+    use LogsActivity;
+    use Notifiable;
 
     /**
      * El nombre de la tabla asociada con el modelo.
@@ -107,7 +114,7 @@ final class StaffUsers extends Authenticatable implements AuthenticatableUser, M
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(
-                fn (string $eventName): string => "El usuario ha sido {$this->getEventDescription($eventName)}"
+                fn (string $eventName): string => 'El usuario ha sido '.$this->getEventDescription($eventName)
             );
     }
 
