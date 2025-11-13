@@ -9,6 +9,7 @@ use App\Interfaces\ModuleRegistryInterface;
 use App\Interfaces\NavigationBuilderInterface;
 use App\Interfaces\StatsServiceInterface;
 use App\Interfaces\ViewComposerInterface;
+use Modules\Module01\App\Interfaces\InventoryManagerInterface;
 
 /**
  * Controlador base para todos los controladores del Módulo 01.
@@ -32,6 +33,7 @@ abstract class Module01BaseController extends ModuleOrchestrationController
         ViewComposerInterface $viewComposerService,
         // Dependencias para este controlador y sus hijos
         protected readonly NavigationBuilderInterface $navigationBuilderService,
+        protected readonly InventoryManagerInterface $inventoryManager,
         protected readonly StatsServiceInterface $statsService,
     ) {
         // Llama al constructor del padre con las dependencias correctas.
