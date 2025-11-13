@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-it('returns a successful response', function () {
+it('redirects welcome to login', function () {
     $response = $this->get('/');
 
-    $response->assertStatus(200);
+    $response->assertRedirect(route('login'));
 });
