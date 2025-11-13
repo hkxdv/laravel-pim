@@ -42,11 +42,11 @@ final class StockMovementFactory extends Factory
     /**
      * Outgoing movement.
      */
-    public function out(): static
+    public function out(int $qty = 1): static
     {
         return $this->state(fn (): array => [
             'type' => 'out',
-            'quantity' => 1,
+            'quantity' => $qty,
             'new_stock' => null,
         ]);
     }
@@ -60,6 +60,48 @@ final class StockMovementFactory extends Factory
             'type' => 'adjust',
             'quantity' => null,
             'new_stock' => $toStock,
+        ]);
+    }
+
+    /**
+     * Incoming movement.
+     */
+    public function in(int $qty = 1): static
+    {
+        return $this->state(fn (): array => [
+            'type' => 'in',
+            'quantity' => $qty,
+            'new_stock' => null,
+        ]);
+    }
+
+    /**
+     * Bind to a specific product.
+     */
+    public function forProduct(Product $product): static
+    {
+        return $this->state(fn (): array => [
+            'product_id' => $product->id,
+        ]);
+    }
+
+    /**
+     * Performed by a specific staff user.
+     */
+    public function byUser(StaffUsers $user): static
+    {
+        return $this->state(fn (): array => [
+            'user_id' => $user->id,
+        ]);
+    }
+
+    /**
+     * Custom notes.
+     */
+    public function withNotes(string $notes): static
+    {
+        return $this->state(fn (): array => [
+            'notes' => $notes,
         ]);
     }
 }

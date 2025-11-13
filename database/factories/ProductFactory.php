@@ -43,4 +43,44 @@ final class ProductFactory extends Factory
             ],
         ];
     }
+
+    /**
+     * Estado: stock bajo (1-5).
+     */
+    public function lowStock(): static
+    {
+        return $this->state(fn(): array => [
+            'stock' => fake()->numberBetween(1, 5),
+        ]);
+    }
+
+    /**
+     * Estado: stock cero.
+     */
+    public function zeroStock(): static
+    {
+        return $this->state(fn(): array => [
+            'stock' => 0,
+        ]);
+    }
+
+    /**
+     * Estado: stock alto (50-200).
+     */
+    public function highStock(): static
+    {
+        return $this->state(fn(): array => [
+            'stock' => fake()->numberBetween(50, 200),
+        ]);
+    }
+
+    /**
+     * Estado: producto inactivo.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn(): array => [
+            'is_active' => false,
+        ]);
+    }
 }
