@@ -54,6 +54,7 @@ final readonly class ViewComposerService implements ViewComposerInterface
                 if (! is_array($item)) {
                     return [];
                 }
+
                 $assoc = [];
                 foreach ($item as $k => $v) {
                     $assoc[(string) $k] = $v;
@@ -98,7 +99,7 @@ final readonly class ViewComposerService implements ViewComposerInterface
         string $moduleViewPath,
         array $data = []
     ): InertiaResponse {
-        return Inertia::render("modules/{$moduleViewPath}/{$view}", $data);
+        return Inertia::render(sprintf('modules/%s/%s', $moduleViewPath, $view), $data);
     }
 
     /**

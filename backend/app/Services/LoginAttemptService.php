@@ -85,6 +85,7 @@ final class LoginAttemptService
         if (is_int($raw)) {
             return $raw;
         }
+
         if (is_string($raw) || is_float($raw)) {
             return (int) $raw;
         }
@@ -151,6 +152,7 @@ final class LoginAttemptService
         } elseif (is_string($raw) || is_float($raw)) {
             $base = (int) $raw;
         }
+
         $ipAttempts = $base + 1;
 
         // Almacenar por 1 hora

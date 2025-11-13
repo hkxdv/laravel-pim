@@ -80,7 +80,7 @@ final readonly class SecurityAuditService
                     )
                 );
             }
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             // Loguea el error con más contexto para facilitar la depuración.
             $id = $user->getAuthIdentifier();
             $uid = is_string($id)
@@ -93,8 +93,8 @@ final readonly class SecurityAuditService
             Log::warning(
                 'Error al procesar notificación de login para el usuario: '.$uid,
                 [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
+                    'error' => $exception->getMessage(),
+                    'trace' => $exception->getTraceAsString(),
                 ]
             );
         }

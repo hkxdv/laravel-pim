@@ -52,6 +52,7 @@ final class EarlyBindingsServiceProvider extends ServiceProvider
                         $locale = is_string($localeValue)
                             ? $localeValue : 'en';
                     }
+
                     $translator = new TranslationTranslator($loader, $locale);
 
                     $fallback = 'en';
@@ -62,6 +63,7 @@ final class EarlyBindingsServiceProvider extends ServiceProvider
                         $fallback = is_string($fallbackValue)
                             ? $fallbackValue : 'en';
                     }
+
                     $translator->setFallback($fallback);
 
                     return $translator;

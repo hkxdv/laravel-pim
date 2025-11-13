@@ -26,6 +26,9 @@ abstract class Controller extends BaseController
 
     /**
      * Obtiene el usuario autenticado del guard 'staff' o aborta con 403.
+     *
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException Si el usuario no está autenticado.
      */
     protected function requireStaffUser(Request $request): StaffUsers
     {

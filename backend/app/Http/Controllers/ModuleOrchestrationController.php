@@ -342,6 +342,13 @@ abstract class ModuleOrchestrationController extends Controller
      * @param  string  $view  Nombre de la vista a renderizar (e.g., 'index', 'create', 'edit')
      * @param  array<string, mixed>  $data  Datos a pasar a la vista
      * @return InertiaResponse Respuesta Inertia con la vista renderizada
+     *
+     * @example
+     * ```php
+     * return $this->renderModuleView('index', [
+     *     'stats' => $this->getModuleStats(),
+     * ]);
+     * ```
      */
     protected function renderModuleView(
         string $view,
@@ -395,6 +402,18 @@ abstract class ModuleOrchestrationController extends Controller
      * @param  array<string, mixed>  $routeParams  Parámetros de la ruta para los breadcrumbs (opcional).
      * @param  array<string, mixed>  $dynamicTitleData  Datos específicos para títulos dinámicos en breadcrumbs (opcional).
      * @return InertiaResponse Respuesta Inertia con el contexto completo.
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException Si el usuario no está autenticado (403).
+     *
+     * @example
+     * ```php
+     * return $this->prepareAndRenderModuleView(
+     *     view: 'orders/list',
+     *     request: $request,
+     *     additionalData: ['orders' => $orders, 'filters' => $filters],
+     *     routeSuffix: 'orders.list'
+     * );
+     * ```
      */
     protected function prepareAndRenderModuleView(
         string $view,

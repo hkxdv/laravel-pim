@@ -17,6 +17,9 @@ use App\Services\RouteFilterService;
 use App\Services\ViewComposerService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Scout\EngineManager;
+use Laravel\Scout\Scout;
+use Typesense\Client;
 
 /**
  * Proveedor de servicios principal de la aplicación.
@@ -44,12 +47,17 @@ final class AppServiceProvider extends ServiceProvider
         // base de datos en la estructura de directorios del proyecto.
         $app->useDatabasePath(base_path('../database'));
 
-        // Registra Telescope solo en entornos de no producción para depuración.
-        if (! $this->app->environment('production')) {
-            $this->app->register(
-                \Laravel\Telescope\TelescopeServiceProvider::class
-            );
-            $this->app->register(TelescopeServiceProvider::class);
+        // Registra Telescope solo en entornos de no producción y si el paquete está instalado.
+        if (
+            ! $this->app->environment('production')
+            && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)
+        ) {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+
+            if (class_exists(TelescopeServiceProvider::class)) {
+                // Registrar el proveedor local si existe.
+                $this->app->register(TelescopeServiceProvider::class);
+            }
         }
 
         // Registrar las interfaces del sistema con sus implementaciones concretas.
@@ -105,5 +113,25 @@ final class AppServiceProvider extends ServiceProvider
             // que las políticas y gates específicos para la habilidad decidan.
             return null;
         });
+
+        // Registro del driver 'typesense' para Scout solo si está activo.
+        $driverRaw = config('scout.driver');
+        $driver = is_string($driverRaw) ? $driverRaw : '';
+        if ($driver === 'typesense' && class_exists(Client::class)) {
+            /** @var EngineManager $manager */
+            $manager = $this->app->make(EngineManager::class);
+
+            $manager->extend('typesense', function ($app): \App\Scout\TypesenseEngine {
+                /** @var array<string, mixed> $clientSettings */
+                $clientSettings = (array) config('scout.typesense.client-settings', []);
+                $client = new Client($clientSettings);
+                $prefixRaw = config('scout.prefix', '');
+                $prefix = is_string($prefixRaw) ? $prefixRaw : '';
+                /** @var array<string, mixed> $config */
+                $config = (array) config('scout.typesense', []);
+
+                return new \App\Scout\TypesenseEngine($client, $config, $prefix);
+            });
+        }
     }
 }

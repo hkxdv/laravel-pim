@@ -131,12 +131,15 @@ trait CrossGuardPermissions
             if ($role instanceof \Spatie\Permission\Contracts\Role) {
                 return (string) $role->name;
             }
+
             if (is_string($role)) {
                 return $role;
             }
+
             if (is_int($role) || is_float($role) || is_bool($role)) {
                 return (string) $role;
             }
+
             if ($role instanceof Stringable) {
                 return (string) $role;
             }
@@ -196,9 +199,11 @@ trait CrossGuardPermissions
             if (is_string($v)) {
                 return $v;
             }
+
             if (is_int($v) || is_float($v) || is_bool($v)) {
                 return (string) $v;
             }
+
             if ($v instanceof Stringable) {
                 return (string) $v;
             }

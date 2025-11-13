@@ -34,7 +34,7 @@ trait ApiResponseFormatter
             $response['data'] = $data;
         }
 
-        if ($message !== null && $message !== '' && $message !== '0') {
+        if (! in_array($message, [null, '', '0'], true)) {
             $response['message'] = $message;
         }
 

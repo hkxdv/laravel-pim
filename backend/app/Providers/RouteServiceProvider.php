@@ -136,7 +136,7 @@ final class RouteServiceProvider extends ServiceProvider
                 ? []
                 : array_filter(
                     array_map(
-                        static fn (string $g): string => mb_trim($g),
+                        mb_trim(...),
                         explode(',', $groupsInput)
                     ),
                     static fn (string $g): bool => $g !== ''

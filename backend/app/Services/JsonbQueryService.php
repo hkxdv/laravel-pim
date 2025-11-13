@@ -48,11 +48,11 @@ final class JsonbQueryService
             // PostgreSQL permite consultas más avanzadas con el operador @>
             $jsonPath = $this->buildJsonPath($column, $path);
 
-            return $query->whereRaw("$jsonPath $operator ?", [$this->formatJsonValue($value)]);
+            return $query->whereRaw(sprintf('%s %s ?', $jsonPath, $operator), [$this->formatJsonValue($value)]);
         }
 
         // Para SQLite y MySQL, usamos la sintaxis estándar de Laravel
-        $fullPath = $path !== '' && $path !== '0' ? "$column->$path" : $column;
+        $fullPath = $path !== '' && $path !== '0' ? sprintf('%s->%s', $column, $path) : $column;
 
         return $query->where($fullPath, $operator, $value);
     }
@@ -78,15 +78,16 @@ final class JsonbQueryService
     ): Builder|EloquentBuilder {
         if ($this->isPostgres()) {
             // Usamos el operador JSONB específico de PostgreSQL (más eficiente)
-            return $query->whereRaw("$jsonColumn->>? $operator ?", [$property, $value]);
+            return $query->whereRaw(sprintf('%s->>? %s ?', $jsonColumn, $operator), [$property, $value]);
         }
+
         // Fallback a la funcionalidad JSON estándar de Laravel
         if ($operator === '=') {
             return $query->whereJsonContains($jsonColumn, [$property => $value]);
         }
 
         // Para otros operadores, usamos whereRaw
-        return $query->whereRaw("JSON_EXTRACT($jsonColumn, '$.$property') $operator ?", [$value]);
+        return $query->whereRaw(sprintf("JSON_EXTRACT(%s, '\$.%s') %s ?", $jsonColumn, $property, $operator), [$value]);
     }
 
     /**
@@ -103,9 +104,9 @@ final class JsonbQueryService
             return false;
         }
 
-        $indexName ??= "idx_{$table}_{$column}";
+        $indexName ??= sprintf('idx_%s_%s', $table, $column);
 
-        return DB::statement("CREATE INDEX IF NOT EXISTS {$indexName} ON {$table} USING GIN ({$column})");
+        return DB::statement(sprintf('CREATE INDEX IF NOT EXISTS %s ON %s USING GIN (%s)', $indexName, $table, $column));
     }
 
     /**
@@ -127,12 +128,12 @@ final class JsonbQueryService
     ): Builder|EloquentBuilder {
         if ($this->isPostgres()) {
             // Búsqueda difusa en PostgreSQL con ILIKE para ignorar mayúsculas/minúsculas
-            return $query->whereRaw("$jsonColumn->>? ILIKE ?", [$property, "%{$searchTerm}%"]);
+            return $query->whereRaw($jsonColumn.'->>? ILIKE ?', [$property, sprintf('%%%s%%', $searchTerm)]);
         }
 
         // Para otros motores, esto es más complejo y menos eficiente
         // Aquí usamos una aproximación, aunque no es óptima para grandes conjuntos de datos
-        return $query->whereRaw("JSON_EXTRACT($jsonColumn, '$.$property') LIKE ?", ["%{$searchTerm}%"]);
+        return $query->whereRaw(sprintf("JSON_EXTRACT(%s, '\$.%s') LIKE ?", $jsonColumn, $property), [sprintf('%%%s%%', $searchTerm)]);
     }
 
     /**
@@ -157,9 +158,9 @@ final class JsonbQueryService
             $bindings = [];
 
             foreach ($properties as $property) {
-                $conditions[] = "$jsonColumn->>? ILIKE ?";
+                $conditions[] = $jsonColumn.'->>? ILIKE ?';
                 $bindings[] = $property;
-                $bindings[] = "%{$searchTerm}%";
+                $bindings[] = sprintf('%%%s%%', $searchTerm);
             }
 
             return $query->whereRaw('('.implode(' OR ', $conditions).')', $bindings);
@@ -170,7 +171,7 @@ final class JsonbQueryService
             EloquentBuilder|Builder $q
         ) use ($jsonColumn, $properties, $searchTerm): void {
             foreach ($properties as $property) {
-                $q->orWhereRaw("JSON_EXTRACT($jsonColumn, '$.$property') LIKE ?", ["%{$searchTerm}%"]);
+                $q->orWhereRaw(sprintf("JSON_EXTRACT(%s, '\$.%s') LIKE ?", $jsonColumn, $property), [sprintf('%%%s%%', $searchTerm)]);
             }
         });
     }
@@ -195,13 +196,14 @@ final class JsonbQueryService
         if ($this->isPostgres()) {
             $operator = $exists ? 'IS NOT NULL' : 'IS NULL';
 
-            return $query->whereRaw("$jsonColumn->?::text $operator", [$property]);
-        }
-        if ($exists) {
-            return $query->whereRaw("JSON_EXTRACT($jsonColumn, '$.$property') IS NOT NULL");
+            return $query->whereRaw(sprintf('%s->?::text %s', $jsonColumn, $operator), [$property]);
         }
 
-        return $query->whereRaw("JSON_EXTRACT($jsonColumn, '$.$property') IS NULL");
+        if ($exists) {
+            return $query->whereRaw(sprintf("JSON_EXTRACT(%s, '\$.%s') IS NOT NULL", $jsonColumn, $property));
+        }
+
+        return $query->whereRaw(sprintf("JSON_EXTRACT(%s, '\$.%s') IS NULL", $jsonColumn, $property));
     }
 
     /**
@@ -224,11 +226,11 @@ final class JsonbQueryService
     ): Builder|EloquentBuilder {
         if ($this->isPostgres()) {
             // Para PostgreSQL, convertimos el valor a texto para un ordenamiento más consistente
-            return $query->orderByRaw("$jsonColumn->>? $direction", [$property]);
+            return $query->orderByRaw(sprintf('%s->>? %s', $jsonColumn, $direction), [$property]);
         }
 
         // Para otros motores
-        return $query->orderByRaw("JSON_EXTRACT($jsonColumn, '$.$property') $direction");
+        return $query->orderByRaw(sprintf("JSON_EXTRACT(%s, '\$.%s') %s", $jsonColumn, $property, $direction));
     }
 
     /**
@@ -251,9 +253,9 @@ final class JsonbQueryService
 
         foreach ($segments as $segment) {
             if (is_numeric($segment)) {
-                $expression .= "->$segment";
+                $expression .= '->'.$segment;
             } else {
-                $expression .= "->'$segment'";
+                $expression .= sprintf("->'%s'", $segment);
             }
         }
 
@@ -277,6 +279,7 @@ final class JsonbQueryService
         if (is_string($value)) {
             return $value;
         }
+
         if (is_int($value) || is_float($value) || is_bool($value)) {
             return (string) $value;
         }
