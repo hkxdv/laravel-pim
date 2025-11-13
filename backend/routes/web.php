@@ -16,10 +16,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Ruta principal de bienvenida
+// Ruta principal de bienvenida (redirige a inicio de sesión)
 Route::get(
     '/',
-    fn () => inertia('public/welcome')
+    function (): RedirectResponse {
+        // Si ya está autenticado en el guard de staff, ir al dashboard interno
+        if (Illuminate\Support\Facades\Auth::guard('staff')->check()) {
+            return to_route('internal.dashboard');
+        }
+
+        // Si no, mostrar login interno
+        return to_route('login');
+    }
 )->name('welcome');
 
 /**

@@ -43,7 +43,12 @@ return function (bool $showLaravelErrors): callable {
         );
 
         $exceptions->renderable(
-            fn(ValidationException $e, Request $request): \Symfony\Component\HttpFoundation\Response => ErrorPageResponder::validation($request)
+            fn(ValidationException $e, Request $request): ?\Symfony\Component\HttpFoundation\Response => (
+                // Para solicitudes Inertia, permitir el comportamiento por defecto de Laravel/Inertia
+                $request->header('X-Inertia')
+                ? null
+                : ErrorPageResponder::validation($request)
+            )
         );
 
         $exceptions->renderable(
