@@ -27,7 +27,7 @@ Route::middleware([
     'throttle:60,1',
     'permission:access-module-01,staff',
 ])->prefix('internal/module-01')->name('internal.module01.')->group(
-    function () {
+    function (): void {
         /**
          * Muestra el panel principal del Módulo 01.
          * URL: /internal/module-01
@@ -39,5 +39,10 @@ Route::middleware([
             '/',
             [Module01PanelController::class, 'showModulePanel']
         )->name('index');
+
+        // Rutas para la gestión de productos (CRUD de vistas)
+        require __DIR__.'/products.php';
+        // Rutas para la gestión de movimientos de stock (listado)
+        require __DIR__.'/stock_movements.php';
     }
 );
