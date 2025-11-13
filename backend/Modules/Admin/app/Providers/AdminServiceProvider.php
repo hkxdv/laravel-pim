@@ -16,15 +16,9 @@ use Modules\Admin\App\Services\AdminStaffUserService;
  */
 final class AdminServiceProvider extends ServiceProvider
 {
-    /**
-     * @var string
-     */
-    protected $moduleName = 'Admin';
+    private string $moduleName = 'Admin';
 
-    /**
-     * @var string
-     */
-    protected $moduleNameLower = 'admin';
+    private string $moduleNameLower = 'admin';
 
     /**
      * Registra servicios, bindings y comandos del módulo.
@@ -57,7 +51,7 @@ final class AdminServiceProvider extends ServiceProvider
     /**
      * Registra la configuración del módulo.
      */
-    protected function registerConfig(): void
+    private function registerConfig(): void
     {
         $this->publishes([
             module_path(

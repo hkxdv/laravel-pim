@@ -36,9 +36,9 @@ final class AdminStaffUserService implements StaffUserManagerInterface
         if (! empty($params['search'])) {
             $searchTerm = $params['search'];
             $query->where(
-                function ($q) use ($searchTerm) {
-                    $q->where('name', 'like', "%{$searchTerm}%")
-                        ->orWhere('email', 'like', "%{$searchTerm}%");
+                function ($q) use ($searchTerm): void {
+                    $q->where('name', 'like', sprintf('%%%s%%', $searchTerm))
+                        ->orWhere('email', 'like', sprintf('%%%s%%', $searchTerm));
                 }
             );
         }
@@ -47,7 +47,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
         if (! empty($params['role'])) {
             $query->whereHas(
                 'roles',
-                function ($q) use ($params) {
+                function ($q) use ($params): void {
                     $q->where('name', $params['role']);
                 }
             );
@@ -93,7 +93,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
         }
 
         // Crear el usuario con los datos proporcionados
-        $user = StaffUsers::create($data);
+        $user = StaffUsers::query()->create($data);
         // Inicializar fecha de establecimiento de contraseña
         $user->forceFill([
             'password_changed_at' => now(),
@@ -135,7 +135,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
      */
     public function updateUser(int $id, array $data): ?StaffUsers
     {
-        $user = StaffUsers::find($id);
+        $user = StaffUsers::query()->find($id);
         if ($user) {
             // Extraer password_changed_at si viene en payload y evitar mass assignment
             $pwdChangedAt = $data['password_changed_at'] ?? null;
@@ -163,7 +163,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
      */
     public function deleteUser(int $id): bool
     {
-        $user = StaffUsers::find($id);
+        $user = StaffUsers::query()->find($id);
         if ($user) {
             return (bool) $user->delete();
         }
@@ -181,7 +181,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
     public function syncRoles(StaffUsers $user, array $roles): void
     {
         // 1. Filtrar los roles 'ADMIN' y 'DEV' de la solicitud.
-        $assignableRoles = collect($roles)->filter(function ($role) {
+        $assignableRoles = collect($roles)->filter(function ($role): bool {
             $roleName = is_string($role)
                 ? $role
                 : ($role instanceof Role
@@ -198,13 +198,11 @@ final class AdminStaffUserService implements StaffUserManagerInterface
 
         // 2. Obtener los roles protegidos que el usuario ya tiene.
         $protectedRoles = $user->roles->filter(
-            function ($role) {
-                return in_array(
-                    mb_strtoupper($role->name),
-                    ['ADMIN', 'DEV'],
-                    true
-                );
-            }
+            fn ($role): bool => in_array(
+                mb_strtoupper((string) $role->name),
+                ['ADMIN', 'DEV'],
+                true
+            )
         )->pluck('name')->all();
 
         // 3. Unir los roles asignables con los protegidos existentes.
@@ -222,7 +220,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
      */
     public function getTotalUsers(): int
     {
-        return StaffUsers::count();
+        return StaffUsers::query()->count();
     }
 
     /**
@@ -232,7 +230,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
      */
     public function getTotalRoles(): int
     {
-        return Role::where('guard_name', 'staff')->count();
+        return Role::query()->where('guard_name', 'staff')->count();
     }
 
     /**
@@ -243,7 +241,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
     public function getAllRoles(): Collection
     {
         // Usar el modelo Role directamente con where para obtener una Eloquent\Collection
-        $roles = Role::where('guard_name', 'staff')->get([
+        $roles = Role::query()->where('guard_name', 'staff')->get([
             'id',
             'name',
             'guard_name',
@@ -251,42 +249,33 @@ final class AdminStaffUserService implements StaffUserManagerInterface
 
         // Añadir descripción para cada rol
         $roles->each(
-            function ($role) {
+            function ($role): void {
                 // Asegurarnos de que el ID sea un entero para evitar problemas de tipado en el frontend
                 $role->id = (int) $role->id;
 
                 // Añadir una descripción según el nombre del rol
-                switch (mb_strtoupper($role->name)) {
-                    case 'ADMIN':
-                        $role->setAttribute(
-                            'description',
-                            'Acceso completo a todas las funciones del sistema'
-                        );
-                        break;
-                    case 'DEV':
-                        $role->setAttribute(
-                            'description',
-                            'Acceso de desarrollador con privilegios especiales'
-                        );
-                        break;
-                    case 'MOD-01':
-                        $role->setAttribute(
-                            'description',
-                            'Acceso al Módulo 01'
-                        );
-                        break;
-                    case 'MOD-02':
-                        $role->setAttribute(
-                            'description',
-                            'Acceso al Módulo 02'
-                        );
-                        break;
-                    default:
-                        $role->setAttribute(
-                            'description',
-                            "Rol de {$role->name}"
-                        );
-                }
+                match (mb_strtoupper((string) $role->name)) {
+                    'ADMIN' => $role->setAttribute(
+                        'description',
+                        'Acceso completo a todas las funciones del sistema'
+                    ),
+                    'DEV' => $role->setAttribute(
+                        'description',
+                        'Acceso de desarrollador con privilegios especiales'
+                    ),
+                    'MOD-01' => $role->setAttribute(
+                        'description',
+                        'Acceso al Módulo 01'
+                    ),
+                    'MOD-02' => $role->setAttribute(
+                        'description',
+                        'Acceso al Módulo 02'
+                    ),
+                    default => $role->setAttribute(
+                        'description',
+                        'Rol de '.$role->name
+                    ),
+                };
             }
         );
 

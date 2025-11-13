@@ -22,7 +22,7 @@ Route::middleware([
     'throttle:60,1',
     'permission:access-admin,staff',
 ])->name('internal.admin.')->prefix('internal/admin')->group(
-    function () {
+    function (): void {
 
         // La ruta principal del panel de administración.
         Route::get(

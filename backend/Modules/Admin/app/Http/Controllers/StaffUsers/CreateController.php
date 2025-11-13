@@ -67,7 +67,7 @@ final class CreateController extends AdminBaseController
                 // Actualizar la sesión flash manualmente
                 session()->flash(
                     'success',
-                    "Usuario '{$user->name}' creado exitosamente."
+                    sprintf("Usuario '%s' creado exitosamente.", $user->name)
                 );
 
                 // Obtener todos los roles para el formulario
@@ -89,18 +89,18 @@ final class CreateController extends AdminBaseController
             }
 
             // Para solicitudes normales, redirigir como antes
-            return redirect()->route('internal.admin.users.index')
+            return to_route('internal.admin.users.index')
                 ->with(
                     'success',
-                    "Usuario '{$user->name}' creado exitosamente."
+                    sprintf("Usuario '%s' creado exitosamente.", $user->name)
                 );
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             // Loguear el error para análisis posterior
             Log::error(
-                'Error al crear usuario: '.$e->getMessage(),
+                'Error al crear usuario: '.$exception->getMessage(),
                 [
                     'data' => $request->except(['password', 'password_confirmation']),
-                    'trace' => $e->getTraceAsString(),
+                    'trace' => $exception->getTraceAsString(),
                 ]
             );
 
@@ -131,7 +131,7 @@ final class CreateController extends AdminBaseController
             }
 
             // Mensaje de error amigable para el usuario en solicitudes normales
-            return redirect()->back()
+            return back()
                 ->withInput(
                     $request->except(['password', 'password_confirmation'])
                 )

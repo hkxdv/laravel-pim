@@ -130,14 +130,14 @@ final class UserRequest extends FormRequest
     public function withValidator($validator): void
     {
         // Validación personalizada para roles protegidos
-        $validator->after(function ($validator) {
+        $validator->after(function ($validator): void {
             if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
                 // Solo aplicar en actualizaciones
                 $user = $this->route('user');
                 if ($user instanceof StaffUsers) {
                     // Consideramos protegido a cualquier usuario que tenga roles ADMIN o DEV
                     $requestRoles = array_map(
-                        'strtoupper',
+                        strtoupper(...),
                         (array) $this->input('roles', [])
                     );
 
@@ -147,7 +147,7 @@ final class UserRequest extends FormRequest
                             fn ($name) => mb_strtoupper((string) $name)
                         )
                         ->filter(
-                            fn ($name) => in_array($name, ['ADMIN', 'DEV'], true)
+                            fn ($name): bool => in_array($name, ['ADMIN', 'DEV'], true)
                         )
                         ->values()
                         ->all();

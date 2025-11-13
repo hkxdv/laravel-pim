@@ -44,20 +44,24 @@ export default function Module02IndexPanel() {
       : createBreadcrumbs('internal.module02.index', pageTitle ?? '');
 
   // Crear estadísticas  para el módulo a partir de los datos del backend
-  const moduleStats: EnhancedStat[] = useMemo(
-    () =>
-      stats
-        ? [
-            buildStat(
-              'Total de solicitudes',
-              stats.totalRequests,
-              'Solicitudes registradas',
-              'ClipboardList' as IconName,
-            ),
-          ]
-        : [],
-    [stats],
-  );
+  const moduleStats: EnhancedStat[] = useMemo(() => {
+    if (!stats) return [];
+    const out: EnhancedStat[] = [];
+    if (typeof stats.ordersTotal === 'number') {
+      out.push(buildStat('Órdenes', stats.ordersTotal, 'Total de órdenes', 'ListOrdered' as IconName));
+    }
+    if (typeof stats.deliveredOrders === 'number') {
+      out.push(
+        buildStat('Entregadas', stats.deliveredOrders, 'Órdenes entregadas', 'CheckCircle2' as IconName),
+      );
+    }
+    if (typeof stats.sumTotals === 'number') {
+      out.push(
+        buildStat('Ventas ($)', stats.sumTotals, 'Suma de totales', 'CircleDollarSign' as IconName),
+      );
+    }
+    return out;
+  }, [stats]);
 
   // Sección de estadísticas para el dashboard
   const statsSection =
@@ -75,7 +79,7 @@ export default function Module02IndexPanel() {
         items={panelItems ?? []}
         getIconComponent={getLucideIcon}
         headerTitle="Secciones del Módulo"
-        headerDescription="Gestione desde aquí las solicitudes de trámites."
+        headerDescription="Gestione órdenes y reportes del módulo."
         emptyStateMessage="No hay secciones disponibles en el Módulo de Solicitud de Trámites por el momento."
         emptyStateIcon="LayoutDashboard"
       />

@@ -13,7 +13,7 @@ use Modules\Admin\App\Http\Controllers\StaffUsers\ListController;
  * Prefijo de Nombre: 'internal.admin.users.'
  */
 Route::prefix('users')->name('users.')->group(
-    function () {
+    function (): void {
         // Muestra la lista de usuarios.
         Route::get('/', ListController::class)->name('index');
 
