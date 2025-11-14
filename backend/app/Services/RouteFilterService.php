@@ -28,7 +28,7 @@ final class RouteFilterService
     public function getFilteredZiggy(Request $request): array
     {
         // Obtener todas las rutas disponibles
-        $ziggy = new Ziggy;
+        $ziggy = new Ziggy();
         /** @var array{url: string, port: int|null, defaults: array<string, mixed>, routes: array<string, mixed>} $allRoutes */
         $allRoutes = $ziggy->toArray();
         /** @var array<string, mixed> $routes */
@@ -182,7 +182,6 @@ final class RouteFilterService
             ]);
         }
 
-        /** @var array<string, mixed> $filteredRoutes */
         return $filteredRoutes;
     }
 

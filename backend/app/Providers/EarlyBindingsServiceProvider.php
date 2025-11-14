@@ -40,7 +40,7 @@ final class EarlyBindingsServiceProvider extends ServiceProvider
                 function (ApplicationContract $app): TranslationTranslator {
                     $langPath = base_path('resources/lang');
                     $loader = new TranslationFileLoader(
-                        new Filesystem,
+                        new Filesystem(),
                         $langPath
                     );
 

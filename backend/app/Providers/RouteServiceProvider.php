@@ -71,11 +71,12 @@ final class RouteServiceProvider extends ServiceProvider
     {
         // Límite general para la API: 60 solicitudes por minuto.
         // Se identifica por el ID del usuario autenticado o, si es un invitado, por su IP.
-        RateLimiter::for(
-            'api',
-            fn (Request $request) => Limit::perMinute(60)
-                ->by($request->user()?->id ?: $request->ip())
-        );
+        RateLimiter::for('api', function (Request $request) {
+            $user = $request->user();
+            $identifier = $user ? $user->getAuthIdentifier() : null;
+
+            return Limit::perMinute(60)->by($identifier ?? $request->ip());
+        });
 
         // Límite para intentos de autenticación: 5 por minuto por IP.
         // Esto ayuda a prevenir ataques de fuerza bruta en el formulario de login.
@@ -98,25 +99,29 @@ final class RouteServiceProvider extends ServiceProvider
     private function configureZiggyRouteGroups(): void
     {
         // Rutas públicas (accesibles para visitantes no autenticados)
-        config(['ziggy.groups.public' => [
-            'welcome',
-            'register.redirect',
-            'login',
-            'login.store',
-            'password.*',
-            'sanctum.csrf-cookie',
-        ]]);
+        config([
+            'ziggy.groups.public' => [
+                'welcome',
+                'register.redirect',
+                'login',
+                'login.store',
+                'password.*',
+                'sanctum.csrf-cookie',
+            ],
+        ]);
 
         // Rutas para el panel interno de personal
-        config(['ziggy.groups.staff' => [
-            'internal.*',
-            'logout',
-            'verification.*',
-            'password.confirm',
-            'password.confirm.store',
-            'sanctum.csrf-cookie',
-            'storage.local',
-        ]]);
+        config([
+            'ziggy.groups.staff' => [
+                'internal.*',
+                'logout',
+                'verification.*',
+                'password.confirm',
+                'password.confirm.store',
+                'sanctum.csrf-cookie',
+                'storage.local',
+            ],
+        ]);
     }
 
     /**

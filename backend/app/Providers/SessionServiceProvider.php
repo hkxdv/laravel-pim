@@ -181,7 +181,8 @@ final class CustomDatabaseSessionHandler extends DatabaseSessionHandler
         $updateData['ip_address'] = request()->ip();
         $updateData['user_agent'] = request()->userAgent();
 
-        if ($userId = $this->userId()) {
+        $userId = $this->userId();
+        if ($userId) {
             $currentGuard = $this->getCurrentGuard();
 
             if ($currentGuard === 'staff') {
@@ -209,7 +210,8 @@ final class CustomDatabaseSessionHandler extends DatabaseSessionHandler
         $insertData['ip_address'] = request()->ip();
         $insertData['user_agent'] = request()->userAgent();
 
-        if ($userId = $this->userId()) {
+        $userId = $this->userId();
+        if ($userId) {
             $currentGuard = $this->getCurrentGuard();
 
             if ($currentGuard === 'staff') {

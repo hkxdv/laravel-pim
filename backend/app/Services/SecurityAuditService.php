@@ -49,10 +49,14 @@ final readonly class SecurityAuditService
                 $this->agent->setUserAgent($userAgent);
             }
 
+            $device = (string) $this->agent->device();
+            $platform = (string) $this->agent->platform();
+            $browser = (string) $this->agent->browser();
+
             $deviceInfo = [
-                'device' => $this->agent->device() ?: 'Desconocido',
-                'platform' => $this->agent->platform() ?: 'Desconocido',
-                'browser' => $this->agent->browser() ?: 'Desconocido',
+                'device' => $device !== '' ? $device : 'Desconocido',
+                'platform' => $platform !== '' ? $platform : 'Desconocido',
+                'browser' => $browser !== '' ? $browser : 'Desconocido',
                 'is_mobile' => $this->agent->isMobile(),
             ];
 

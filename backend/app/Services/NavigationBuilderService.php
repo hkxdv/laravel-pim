@@ -414,7 +414,7 @@ final readonly class NavigationBuilderService implements NavigationBuilderInterf
                 );
 
                 if ($dynamicTitle !== null) {
-                    $title = $title.': '.$dynamicTitle;
+                    $title .= ': '.$dynamicTitle;
                 }
             }
 
@@ -461,7 +461,6 @@ final readonly class NavigationBuilderService implements NavigationBuilderInterf
             ];
         }
 
-        /** @var array<int, array{title: string, href: string}> $breadcrumbs */
         return $breadcrumbs;
     }
 
@@ -677,7 +676,6 @@ final readonly class NavigationBuilderService implements NavigationBuilderInterf
 
         // Intentar usar la configuración si existe
         $moduleConfig = $this->moduleRegistry->getModuleConfig($moduleSlug);
-        /** @var array<string, mixed> $moduleConfig */
         $moduleConfigArr = $moduleConfig;
         if (
             isset($moduleConfigArr['breadcrumbs'])

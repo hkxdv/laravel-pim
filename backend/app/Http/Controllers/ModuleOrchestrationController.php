@@ -259,7 +259,7 @@ abstract class ModuleOrchestrationController extends Controller
                 }
             }
         } catch (Throwable) {
-            // Si no se puede detectar, continuar con fallback silenciosamente
+            return [];
         }
 
         // Fallback a 'default' si está disponible
@@ -377,7 +377,7 @@ abstract class ModuleOrchestrationController extends Controller
      */
     protected function resolveConfigReferences(mixed $config, array $routeParams = []): mixed
     {
-        if ($this->navigationService && ! empty($config)) {
+        if ($this->navigationService && (! in_array($config, [null, '', []], true))) {
             // Forward route params to allow dynamic resolution in breadcrumbs and nav
             return $this->navigationService->resolveConfigReferences(
                 $config,

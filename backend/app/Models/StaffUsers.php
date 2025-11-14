@@ -133,7 +133,7 @@ final class StaffUsers extends Authenticatable implements AuthenticatableUser, M
      */
     public function sendEmailVerificationNotification(): void
     {
-        $this->notify(new VerifyEmailNotification);
+        $this->notify(new VerifyEmailNotification());
     }
 
     /**

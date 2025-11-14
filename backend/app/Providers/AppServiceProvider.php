@@ -18,7 +18,6 @@ use App\Services\ViewComposerService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Scout\EngineManager;
-use Laravel\Scout\Scout;
 use Typesense\Client;
 
 /**

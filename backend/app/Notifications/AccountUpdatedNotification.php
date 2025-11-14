@@ -28,8 +28,8 @@ final class AccountUpdatedNotification extends Notification implements ShouldQue
      * @param  string|null  $ipAddress  La dirección IP desde la que se realizó el cambio.
      */
     public function __construct(
-        public array $changes = [],
-        public ?string $ipAddress = null
+        private array $changes = [],
+        private ?string $ipAddress = null
     ) {}
 
     /**
@@ -54,7 +54,7 @@ final class AccountUpdatedNotification extends Notification implements ShouldQue
         $nameValue = $notifiable->getAttribute('name');
         $nameSafe = is_string($nameValue) ? $nameValue : '';
 
-        $message = (new MailMessage)
+        $message = new MailMessage()
             ->subject(
                 'Alerta de Seguridad: Cambios en tu cuenta'
             )

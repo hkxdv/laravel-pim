@@ -199,10 +199,9 @@ final class TypesenseEngine extends Engine
     {
         $indexName = $this->indexNameForModel($model);
         try {
-            // Delete all documents in the collection; if collection doesn't exist, ignore
             $this->client->collections[$indexName]->documents->delete(['filter_by' => '']);
         } catch (Throwable) {
-            // noop
+            return;
         }
     }
 
@@ -235,7 +234,7 @@ final class TypesenseEngine extends Engine
         try {
             $this->client->collections->create($schema);
         } catch (Throwable) {
-            // noop
+            return;
         }
     }
 
@@ -250,7 +249,7 @@ final class TypesenseEngine extends Engine
         try {
             $this->client->collections[$collection]->delete();
         } catch (Throwable) {
-            // noop
+            return;
         }
     }
 
@@ -386,7 +385,7 @@ final class TypesenseEngine extends Engine
 
             return;
         } catch (Throwable) {
-            // Continue to create if not exists
+            // proceed to create the collection
         }
 
         /** @var array<string, mixed> $schema */

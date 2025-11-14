@@ -38,7 +38,7 @@ final class VerifyEmailNotification extends VerifyEmail implements ShouldQueue
         $nameValue = $notifiable->getAttribute('name');
         $displayName = is_string($nameValue) ? $nameValue : 'Usuario';
 
-        return (new MailMessage)
+        return new MailMessage()
             ->subject(
                 'Activación de Cuenta y Verificación de Correo'
             )

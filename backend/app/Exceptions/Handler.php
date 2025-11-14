@@ -16,9 +16,7 @@ final class Handler extends ExceptionHandler
      *
      * @var array<int, class-string<Throwable>>
      */
-    protected $dontReport = [
-        //
-    ];
+    protected $dontReport = [];
 
     /**
      * Una lista de los entradas que nunca se flashan a la sesión en excepciones de validación.

@@ -28,9 +28,9 @@ final class PasswordConfirmationNotification extends Notification implements Sho
      * @param  string|null  $userAgent  El agente de usuario (dispositivo) utilizado.
      */
     public function __construct(
-        public string $actionType = 'acción sensible',
-        public ?string $ipAddress = null,
-        public ?string $userAgent = null
+        private string $actionType = 'acción sensible',
+        private ?string $ipAddress = null,
+        private ?string $userAgent = null
     ) {}
 
     /**
@@ -55,7 +55,7 @@ final class PasswordConfirmationNotification extends Notification implements Sho
         $nameValue = $notifiable->getAttribute('name');
         $nameSafe = is_string($nameValue) ? $nameValue : '';
 
-        $message = (new MailMessage)
+        $message = new MailMessage()
             ->subject(
                 'Alerta de Seguridad: Contraseña Confirmada para Acción Sensible'
             )

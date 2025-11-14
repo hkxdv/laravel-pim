@@ -25,15 +25,7 @@ final class HandleInertiaRequests extends Middleware
      */
     protected $rootView = 'app';
 
-    /**
-     * Determina la versión actual de los assets.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
-    public function version(Request $request): ?string
-    {
-        return parent::version($request);
-    }
+    // Usar versión por defecto de assets de la clase base
 
     /**
      * Define las props que se comparten por defecto con todas las vistas de Inertia.

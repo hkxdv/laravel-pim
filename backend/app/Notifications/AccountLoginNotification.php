@@ -24,7 +24,7 @@ final class AccountLoginNotification extends Notification implements ShouldQueue
     /**
      * La fecha y hora en que ocurrió el inicio de sesión.
      */
-    public \Carbon\CarbonInterface $time;
+    private \Carbon\CarbonInterface $time;
 
     /**
      * Crea una nueva instancia de la notificación.
@@ -38,10 +38,10 @@ final class AccountLoginNotification extends Notification implements ShouldQueue
      * @param  int|null  $loginId  El ID del registro de inicio de sesión para permitir marcarlo como confiable.
      */
     public function __construct(
-        public ?string $ipAddress = null,
-        public ?string $userAgent = null,
-        public string $location = 'Ubicación desconocida',
-        public ?int $loginId = null
+        private ?string $ipAddress = null,
+        private ?string $userAgent = null,
+        private string $location = 'Ubicación desconocida',
+        private ?int $loginId = null
     ) {
         $this->time = now();
     }
@@ -68,7 +68,7 @@ final class AccountLoginNotification extends Notification implements ShouldQueue
         $nameValue = $notifiable->getAttribute('name');
         $nameSafe = is_string($nameValue) ? $nameValue : '';
 
-        $message = (new MailMessage)
+        $message = new MailMessage()
             ->subject(
                 '¡Alerta de seguridad! Nuevo dispositivo detectado'
             )

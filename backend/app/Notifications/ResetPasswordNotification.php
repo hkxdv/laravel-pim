@@ -26,14 +26,14 @@ final class ResetPasswordNotification extends Notification implements ShouldQueu
      *
      * @var (callable(\Illuminate\Contracts\Auth\CanResetPassword, string): MailMessage)|null
      */
-    public static $toMailCallback;
+    private static $toMailCallback;
 
     /**
      * Crea una nueva instancia de la notificación.
      *
      * @param  string  $token  El token de restablecimiento de contraseña.
      */
-    public function __construct(public string $token) {}
+    public function __construct(private string $token) {}
 
     /**
      * Define un callback para personalizar la construcción del mensaje de correo.
@@ -84,7 +84,7 @@ final class ResetPasswordNotification extends Notification implements ShouldQueu
         $nameValue = $notifiable->getAttribute('name');
         $displayName = is_string($nameValue) ? $nameValue : 'Usuario';
 
-        return (new MailMessage)
+        return new MailMessage()
             ->subject(
                 'Notificación de Restablecimiento de Contraseña'
             )

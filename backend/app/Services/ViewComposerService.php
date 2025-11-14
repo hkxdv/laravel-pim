@@ -237,7 +237,8 @@ final readonly class ViewComposerService implements ViewComposerInterface
         $accessibleCards = [];
         $restrictedCards = [];
         foreach ($moduleCards as $card) {
-            if (! empty($card['canAccess'])) {
+            $canAccess = array_key_exists('canAccess', $card) && (bool) $card['canAccess'];
+            if ($canAccess) {
                 $accessibleCards[] = $card;
             } else {
                 $restrictedCards[] = $card;

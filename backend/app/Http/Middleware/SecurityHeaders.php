@@ -30,7 +30,11 @@ final class SecurityHeaders
 
             // Prevenir CORS problemas en API
             if (! $response->headers->has('Access-Control-Allow-Origin')) {
-                // Aquí puedes implementar tu lógica de CORS si es necesaria
+                $origin = $request->headers->get('Origin');
+                $response->headers->set(
+                    'Access-Control-Allow-Origin',
+                    is_string($origin) && $origin !== '' ? $origin : '*'
+                );
             }
 
             // Agregar informacion sobre límites de tasa para APIs
