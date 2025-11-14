@@ -8,6 +8,8 @@ use App\Interfaces\StatsServiceInterface;
 use Illuminate\Support\ServiceProvider;
 use Modules\Module01\App\Http\Controllers\Module01BaseController;
 use Modules\Module01\App\Http\Controllers\Module01PanelController;
+use Modules\Module01\App\Interfaces\InventoryManagerInterface;
+use Modules\Module01\App\Services\Module01InventoryService;
 use Modules\Module01\App\Services\Module01StatsService;
 
 /**
@@ -16,15 +18,9 @@ use Modules\Module01\App\Services\Module01StatsService;
  */
 final class Module01ServiceProvider extends ServiceProvider
 {
-    /**
-     * @var string
-     */
-    protected $moduleName = 'Module01';
+    private string $moduleName = 'Module01';
 
-    /**
-     * @var string
-     */
-    protected $moduleNameLower = 'module01';
+    private string $moduleNameLower = 'module01';
 
     /**
      * Registra servicios, bindings y comandos del módulo.
@@ -33,6 +29,12 @@ final class Module01ServiceProvider extends ServiceProvider
     {
         $this->app->register(RouteServiceProvider::class);
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
+
+        // Binding del InventoryManagerInterface para operaciones de productos
+        $this->app->bind(
+            InventoryManagerInterface::class,
+            Module01InventoryService::class
+        );
 
         // Contextual binding para evitar colisiones globales del contrato StatsServiceInterface
         $this->app->when(Module01BaseController::class)
@@ -51,7 +53,7 @@ final class Module01ServiceProvider extends ServiceProvider
     /**
      * Registra la configuración del módulo.
      */
-    protected function registerConfig(): void
+    private function registerConfig(): void
     {
         $this->publishes([
             module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower.'.php'),

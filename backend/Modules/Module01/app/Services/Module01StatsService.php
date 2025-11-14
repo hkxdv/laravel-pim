@@ -24,14 +24,14 @@ final class Module01StatsService implements StatsServiceInterface
                 title: 'Ítems de panel',
                 description: 'Total de accesos del panel',
                 icon: 'layout-dashboard',
-                value: (int) count($panelItems),
+                value: count($panelItems),
             ),
             new EnhancedStat(
                 key: 'contextual_links',
                 title: 'Navegación contextual',
                 description: 'Enlaces disponibles',
                 icon: 'list',
-                value: (int) count($contextualDefault),
+                value: count($contextualDefault),
             ),
         ];
     }

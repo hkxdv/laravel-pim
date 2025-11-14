@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-return [
+return [/*
     // Configuración básica del módulo
     'module_slug' => 'admin',
     'auth_guard' => 'staff',
@@ -139,4 +139,4 @@ return [
             '$ref:breadcrumb_components.users_edit',
         ],
     ],
-];
+ */];
