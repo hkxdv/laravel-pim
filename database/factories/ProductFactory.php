@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\Product;
+use Modules\Inventory\App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
+ * @extends Factory<Product>
  */
 final class ProductFactory extends Factory
 {
@@ -19,17 +19,17 @@ final class ProductFactory extends Factory
     protected $model = Product::class;
 
     /**
-     * Define the model's default state.
+     * Define el estado predeterminado del modelo.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'sku' => strtoupper('SKU-' . Str::random(10)),
+            'sku' => mb_strtoupper('SKU-' . Str::random(10)),
             'name' => fake()->words(3, true),
             'brand' => fake()->company(),
-            'model' => strtoupper(fake()->bothify('MOD-####')),
+            'model' => mb_strtoupper(fake()->bothify('MOD-####')),
             'barcode' => fake()->ean13(),
             'price' => fake()->randomFloat(2, 1, 999.99),
             'stock' => fake()->numberBetween(0, 100),

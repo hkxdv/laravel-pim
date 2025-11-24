@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Product;
+use Modules\Inventory\App\Models\Product;
 use App\Models\StaffUsers;
-use App\Models\StockMovement;
+use Modules\Inventory\App\Models\StockMovement;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,8 +26,8 @@ final class TestStockMovementsSeeder extends Seeder
             ]);
         }
 
-        if (! $tester->hasPermissionTo('access-module-01')) {
-            $tester->givePermissionTo('access-module-01');
+        if (! $tester->hasPermissionTo('access-inventory')) {
+            $tester->givePermissionTo('access-inventory');
         }
 
         // Asegurar que haya productos suficientes
