@@ -1,0 +1,11 @@
+{
+  "name": "module/sales",
+  "type": "laravel-module",
+  "autoload": {
+    "psr-4": {
+      "Modules\\Sales\\App\\": "app/",
+      "Modules\\Sales\\Database\\Factories\\": "database/factories/",
+      "Modules\\Sales\\Database\\Seeders\\": "database/seeders/"
+    }
+  }
+}
