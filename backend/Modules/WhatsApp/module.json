@@ -1,0 +1,9 @@
+{
+  "name": "WhatsApp",
+  "alias": "whatsapp",
+  "priority": 0,
+  "providers": [
+    "Modules\\WhatsApp\\App\\Providers\\WhatsAppServiceProvider",
+    "Modules\\WhatsApp\\App\\Providers\\RouteServiceProvider"
+  ]
+}

@@ -42,6 +42,9 @@ return [
     */
 
     'debug' => (bool) env('APP_DEBUG', false),
+    'ziggy_debug' => filter_var(env('ZIGGY_DEBUG', false), FILTER_VALIDATE_BOOL),
+    'login_debug' => filter_var(env('LOGIN_DEBUG', false), FILTER_VALIDATE_BOOL),
+    'access_dashboard_debug' => filter_var(env('ACCESS_DASHBOARD_DEBUG', false), FILTER_VALIDATE_BOOL),
 
     /*
     |--------------------------------------------------------------------------

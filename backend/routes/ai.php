@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Mcp\Servers\AgentOpsServer;
 use Laravel\Mcp\Facades\Mcp;
+use Modules\Assistant\App\Mcp\Servers\AgentOpsServer;
 
 Mcp::web('/mcp/agent-ops', AgentOpsServer::class)
-    ->middleware(['throttle:mcp']);
+    ->middleware(['auth:sanctum', 'abilities:basic', 'throttle:60,1']);
 
 Mcp::local('agent-ops', AgentOpsServer::class);

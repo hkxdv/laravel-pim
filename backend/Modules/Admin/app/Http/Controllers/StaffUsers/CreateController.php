@@ -49,21 +49,31 @@ final class CreateController extends AdminBaseController
     public function store(UserRequest $request)
     {
         try {
+            /** @var array<string, mixed> $validatedData */
             $validatedData = $request->validated();
-            $validatedData['password'] = bcrypt($validatedData['password']);
+            $pwdRaw = $validatedData['password'] ?? '';
+            $pwd = is_string($pwdRaw) ? $pwdRaw : '';
+            $validatedData['password'] = bcrypt($pwd);
             // Registrar fecha de establecimiento inicial de la contraseña
             $validatedData['password_changed_at'] = now();
             $user = $this->staffUserManager->createUser($validatedData);
 
             if ($request->has('roles')) {
-                $this->staffUserManager->syncRoles(
-                    $user,
-                    $request->input('roles', [])
-                );
+                $rolesInput = $request->input('roles', []);
+                $rolesNormalized = [];
+                if (is_array($rolesInput)) {
+                    foreach ($rolesInput as $r) {
+                        if (is_int($r) || is_string($r) || $r instanceof \Spatie\Permission\Models\Role) {
+                            $rolesNormalized[] = $r;
+                        }
+                    }
+                }
+
+                $this->staffUserManager->syncRoles($user, $rolesNormalized);
             }
 
             // Si es una solicitud de Inertia, devolver una respuesta Inertia en lugar de redireccionar
-            if ($request->header('X-Inertia')) {
+            if (is_string($request->header('X-Inertia'))) {
                 // Actualizar la sesión flash manualmente
                 session()->flash(
                     'success',
@@ -89,10 +99,13 @@ final class CreateController extends AdminBaseController
             }
 
             // Para solicitudes normales, redirigir como antes
+            $userNameRaw = $user->getAttribute('name');
+            $userName = is_string($userNameRaw) ? $userNameRaw : '';
+
             return to_route('internal.admin.users.index')
                 ->with(
                     'success',
-                    sprintf("Usuario '%s' creado exitosamente.", $user->name)
+                    sprintf("Usuario '%s' creado exitosamente.", $userName)
                 );
         } catch (Exception $exception) {
             // Loguear el error para análisis posterior
@@ -105,7 +118,7 @@ final class CreateController extends AdminBaseController
             );
 
             // Si es una solicitud de Inertia, devolver una respuesta Inertia con errores
-            if ($request->header('X-Inertia')) {
+            if (is_string($request->header('X-Inertia'))) {
                 session()->flash(
                     'error',
                     'Ocurrió un error al crear el usuario. Por favor, inténtalo nuevamente.'

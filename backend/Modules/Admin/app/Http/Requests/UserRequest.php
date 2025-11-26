@@ -8,6 +8,7 @@ use App\Models\StaffUsers;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Validator;
 
 /**
  * Request para validación de datos de formulario de usuarios del staff.
@@ -59,7 +60,8 @@ final class UserRequest extends FormRequest
 
         // Regla única para el email, excepto para el usuario actual en actualizaciones
         if ($userId) {
-            $rules['email'][] = 'unique:staff_users,email,'.$userId;
+            $userIdStr = is_scalar($userId) ? (string) $userId : '';
+            $rules['email'][] = sprintf('unique:staff_users,email,%s', $userIdStr);
         } else {
             $rules['email'][] = 'unique:staff_users,email';
             $rules['password'] = [
@@ -67,7 +69,7 @@ final class UserRequest extends FormRequest
                 'string',
                 'min:8',
                 'confirmed',
-                Password::defaults()
+                Password::min(8)
                     ->mixedCase()
                     ->numbers()
                     ->symbols()
@@ -82,7 +84,7 @@ final class UserRequest extends FormRequest
                 'string',
                 'min:8',
                 'confirmed',
-                Password::defaults()
+                Password::min(8)
                     ->mixedCase()
                     ->numbers()
                     ->symbols()
@@ -122,29 +124,27 @@ final class UserRequest extends FormRequest
         ];
     }
 
-    /**
-     * Configure the validator instance.
-     *
-     * @param  \Illuminate\Validation\Validator  $validator
-     */
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
         // Validación personalizada para roles protegidos
-        $validator->after(function ($validator): void {
+        $validator->after(function (Validator $v): void {
             if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
                 // Solo aplicar en actualizaciones
                 $user = $this->route('user');
                 if ($user instanceof StaffUsers) {
                     // Consideramos protegido a cualquier usuario que tenga roles ADMIN o DEV
+                    $rolesInput = (array) $this->input('roles', []);
                     $requestRoles = array_map(
-                        strtoupper(...),
-                        (array) $this->input('roles', [])
+                        mb_strtoupper(...),
+                        array_values(array_filter($rolesInput, is_string(...)))
                     );
 
                     $currentProtectedRoles = $user->roles
                         ->pluck('name')
                         ->map(
-                            fn ($name) => mb_strtoupper((string) $name)
+                            fn ($name): string => mb_strtoupper(
+                                is_string($name) ? $name : ''
+                            )
                         )
                         ->filter(
                             fn ($name): bool => in_array($name, ['ADMIN', 'DEV'], true)
@@ -158,11 +158,8 @@ final class UserRequest extends FormRequest
                         $requestRoles
                     );
 
-                    if (
-                        count($remainingProtectedRoles)
-                        !== count($currentProtectedRoles)
-                    ) {
-                        $validator->errors()->add(
+                    if (count($remainingProtectedRoles) !== count($currentProtectedRoles)) {
+                        $v->errors()->add(
                             'roles',
                             'No se pueden remover roles protegidos de un usuario administrador'
                         );

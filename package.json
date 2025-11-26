@@ -39,6 +39,7 @@
     "ziggy": "bun run local ziggy:generate ../frontend/src/ziggy.js",
     "make-nwidart-module": "bun run local module:make",
     "make-custom-module:be": "bun run local make:project-module",
+    "qa:be": "cd backend && composer pint:test && composer test:types && composer test && composer lint",
     "tinker": "bun run local tinker",
     "// FRONTEND (LOCAL)": "--------------------------------------------------",
     "i:fe": "cd frontend && bun i",

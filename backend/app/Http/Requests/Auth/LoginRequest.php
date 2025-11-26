@@ -139,13 +139,15 @@ final class LoginRequest extends FormRequest
         $loginAttemptService->clearAttempts($identifier, $ip);
 
         // Log de login exitoso
-        Log::info('Login exitoso', [
-            'user_id' => Auth::guard($this->guard)->id(),
-            'guard' => $this->guard,
-            'login_type' => $this->loginType,
-            'ip' => $ip,
-            'user_agent' => $this->userAgent(),
-        ]);
+        if (Config::get('app.login-debug')) {
+            Log::info('Login exitoso', [
+                'user_id' => Auth::guard($this->guard)->id(),
+                'guard' => $this->guard,
+                'login_type' => $this->loginType,
+                'ip' => $ip,
+                'user_agent' => $this->userAgent(),
+            ]);
+        }
     }
 
     /**

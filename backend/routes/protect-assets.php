@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 // Rutas para activos protegidos
 Route::middleware([ProtectStaticAssets::class])->group(function (): void {
+
     // Esta ruta servirá los archivos de una carpeta protegida y hará fallback a storage público si aplica
     Route::get('/assets/{path}', function (string $path) {
         $protectedPath = storage_path('app/protected/assets/'.$path);
@@ -32,10 +33,12 @@ Route::middleware([ProtectStaticAssets::class])->group(function (): void {
 
         $detected = $mimeTypes[$extension]
             ?? (function_exists('mime_content_type')
-                ? @mime_content_type($filePath)
+                ? mime_content_type($filePath)
                 : null
             );
-        $contentType = $detected ?: 'application/octet-stream';
+        $contentType = in_array($detected, [null, false, ''], true)
+            ? 'application/octet-stream'
+            : $detected;
 
         return response()->file($filePath, ['Content-Type' => $contentType]);
     })->where('path', '.*');

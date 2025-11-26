@@ -1,0 +1,11 @@
+{
+  "name": "module/whatsapp",
+  "type": "laravel-module",
+  "autoload": {
+    "psr-4": {
+      "Modules\\WhatsApp\\App\\": "app/",
+      "Modules\\WhatsApp\\Database\\Factories\\": "database/factories/",
+      "Modules\\WhatsApp\\Database\\Seeders\\": "database/seeders/"
+    }
+  }
+}

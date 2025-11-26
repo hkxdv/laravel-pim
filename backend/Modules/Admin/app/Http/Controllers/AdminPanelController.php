@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Admin\App\Http\Controllers;
 
+use App\Models\StaffUsers;
 use Spatie\Activitylog\Models\Activity;
 
 /**
@@ -38,13 +39,10 @@ final class AdminPanelController extends AdminBaseController
      */
     protected function getModuleStats(): array
     {
-        // Exponer las estadísticas del módulo como EnhancedStat[]
-        $stats = $this->statsService->getPanelStats(
+        return $this->statsService->getPanelStats(
             $this->getModuleSlug(),
             $this->getAuthenticatedUser()
         );
-
-        return $stats;
     }
 
     /**
@@ -62,15 +60,29 @@ final class AdminPanelController extends AdminBaseController
     {
         $activities = Activity::with('causer')->latest()->take(5)->get();
 
-        return $activities->map(fn (Activity $activity): array => [
-            'id' => $activity->id,
-            'user' => [
-                'name' => $activity->causer?->name ?? 'Sistema',
-            ],
-            'title' => $activity->description,
-            'timestamp' => $activity->created_at->toIso8601String(),
-            'icon' => $this->getIconForEvent($activity->event),
-        ])->all();
+        $result = [];
+        foreach ($activities as $activity) {
+            $userName = 'Sistema';
+            if ($activity->causer instanceof StaffUsers) {
+                $nameRaw = $activity->causer->getAttribute('name');
+                $userName = is_string($nameRaw) ? $nameRaw : 'Sistema';
+            }
+
+            $timestamp = $activity->created_at ? (string) $activity->created_at->toIso8601String() : now()->toIso8601String();
+
+            $titleRaw = $activity->description;
+            $title = is_string($titleRaw) ? $titleRaw : '';
+
+            $result[] = [
+                'id' => (int) $activity->id,
+                'user' => ['name' => $userName],
+                'title' => $title,
+                'timestamp' => $timestamp,
+                'icon' => $this->getIconForEvent($activity->event),
+            ];
+        }
+
+        return $result;
     }
 
     /**
