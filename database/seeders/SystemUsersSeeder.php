@@ -7,7 +7,7 @@ namespace Database\Seeders;
 use App\Models\StaffUsers;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use Throwable;
 
@@ -37,11 +37,6 @@ final class SystemUsersSeeder extends Seeder
         $created = 0;
         $updated = 0;
         $assignedRoles = 0;
-
-        // Leer configuración centralizada para seeders con tipado seguro
-        $maxConfig = config('seeders.users.staff.max');
-        $max = is_int($maxConfig) ? $maxConfig : 10;
-        $max = $max > 0 ? min($max, 50) : 10; // límite de seguridad a 50
 
         /** @var array<int, array{ email?: string, password?: string, name?: string, role?: string, force_password_update?: bool }> $staffList
          */
@@ -118,7 +113,7 @@ final class SystemUsersSeeder extends Seeder
             }
         }
 
-        Log::info(
+        /*  Log::info(
             'SystemUsersSeeder ejecutado',
             [
                 'created' => $created,
@@ -126,10 +121,15 @@ final class SystemUsersSeeder extends Seeder
                 'assigned_roles' => $assignedRoles,
                 'max_checked' => $max,
             ]
-        );
+        ); */
 
         $this->command->info(
-            sprintf('Usuarios creados: %d, actualizados: %d, roles asignados: %d.', $created, $updated, $assignedRoles)
+            sprintf(
+                'Usuarios creados: %d, actualizados: %d, roles asignados: %d.',
+                $created,
+                $updated,
+                $assignedRoles
+            )
         );
         $this->command->info('Seeder de usuarios del sistema completado.');
     }

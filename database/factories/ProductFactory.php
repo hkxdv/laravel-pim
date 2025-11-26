@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use Modules\Inventory\App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Modules\Inventory\App\Models\Product;
 
 /**
  * @extends Factory<Product>
@@ -26,7 +26,7 @@ final class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'sku' => mb_strtoupper('SKU-' . Str::random(10)),
+            'sku' => mb_strtoupper('SKU-'.Str::random(10)),
             'name' => fake()->words(3, true),
             'brand' => fake()->company(),
             'model' => mb_strtoupper(fake()->bothify('MOD-####')),
@@ -49,7 +49,7 @@ final class ProductFactory extends Factory
      */
     public function lowStock(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'stock' => fake()->numberBetween(1, 5),
         ]);
     }
@@ -59,7 +59,7 @@ final class ProductFactory extends Factory
      */
     public function zeroStock(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'stock' => 0,
         ]);
     }
@@ -69,7 +69,7 @@ final class ProductFactory extends Factory
      */
     public function highStock(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'stock' => fake()->numberBetween(50, 200),
         ]);
     }
@@ -79,7 +79,7 @@ final class ProductFactory extends Factory
      */
     public function inactive(): static
     {
-        return $this->state(fn(): array => [
+        return $this->state(fn (): array => [
             'is_active' => false,
         ]);
     }

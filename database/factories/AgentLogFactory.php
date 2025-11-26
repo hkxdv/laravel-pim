@@ -9,7 +9,7 @@ use App\Models\StaffUsers;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AgentLog>
+ * @extends Factory<AgentLog>
  */
 final class AgentLogFactory extends Factory
 {
@@ -19,18 +19,34 @@ final class AgentLogFactory extends Factory
     protected $model = AgentLog::class;
 
     /**
-     * Define the model's default state.
+     * Define el estado predeterminado del modelo.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'agent_name' => fake()->randomElement(['AI-Assistant', 'Scheduler', 'Importer']),
+            'agent_name' => fake()->randomElement([
+                'AI-Assistant',
+                'Scheduler',
+                'Importer',
+            ]),
             'user_id' => StaffUsers::factory(),
-            'module' => fake()->randomElement(['Module01', 'Module02', 'Module03']),
-            'action' => fake()->randomElement(['list', 'create', 'update', 'delete']),
-            'status' => fake()->randomElement(['ok', 'warn', 'error']),
+            'module' => fake()->randomElement([
+                'Inventory',
+                'Assistant',
+            ]),
+            'action' => fake()->randomElement([
+                'list',
+                'create',
+                'update',
+                'delete',
+            ]),
+            'status' => fake()->randomElement([
+                'ok',
+                'warn',
+                'error',
+            ]),
             'duration_ms' => fake()->numberBetween(1, 2000),
             'request_payload' => [
                 'path' => '/api/test',

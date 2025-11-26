@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -15,9 +15,6 @@ use Spatie\Permission\PermissionRegistrar;
  */
 final class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Ejecuta el seeder para poblar la base de datos.
-     */
     public function run(): void
     {
         $this->command->info('Iniciando seeder de Roles y Permisos...');
@@ -26,11 +23,12 @@ final class RolePermissionSeeder extends Seeder
 
         // CREAR PERMISOS - Solo los esenciales para acceso a módulos
         $permissions = [
-            'access-module-01',
-            'access-module-02',
-            // 'access-module-03',
-            // 'access-module-04',
             'access-admin',
+            'access-inventory',
+            'access-sales',
+            'access-whatsapp',
+            'access-assistant',
+
         ];
 
         foreach ($permissions as $permission) {
@@ -57,38 +55,35 @@ final class RolePermissionSeeder extends Seeder
         ]);
         $roleDev->givePermissionTo($permissions);
 
-        // Roles de Módulos (MOD-XX) - cada uno solo con su permiso principal
+        // Roles de Módulos
         Role::query()->firstOrCreate([
-            'name' => 'MOD-01',
+            'name' => 'INVENTORY',
             'guard_name' => 'staff',
-        ])->givePermissionTo('access-module-01');
+        ])->givePermissionTo('access-inventory');
 
         Role::query()->firstOrCreate([
-            'name' => 'MOD-02',
+            'name' => 'SALES',
             'guard_name' => 'staff',
-        ])->givePermissionTo('access-module-02');
+        ])->givePermissionTo('access-sales');
 
-        /*
-        Role::firstOrCreate([
-            'name' => 'MOD-03',
-            'guard_name' => 'staff'
-        ])->givePermissionTo('access-module-03');
+        Role::query()->firstOrCreate([
+            'name' => 'WHATSAPP',
+            'guard_name' => 'staff',
+        ])->givePermissionTo('access-whatsapp');
 
-        Role::firstOrCreate([
-            'name' => 'MOD-04',
-            'guard_name' => 'staff'
-        ])->givePermissionTo('access-module-04');
-        */
+        Role::query()->firstOrCreate([
+            'name' => 'ASSISTANT',
+            'guard_name' => 'staff',
+        ])->givePermissionTo('access-assistant');
 
         // NOTA: La creación de usuarios ahora es manejada por SystemUsersSeeder
         // para mejor separación de responsabilidades y flexibilidad.
 
-        // Registrar información en el log
-        Log::info('Seeder de roles y permisos ejecutado:', [
+        /* Log::info('Seeder de roles y permisos ejecutado:', [
             'roles_count' => Role::query()->count(),
             'permissions_count' => Permission::query()->count(),
             'roles' => Role::all(['id', 'name', 'guard_name'])->toArray(),
-        ]);
+        ]); */
 
         $this->command->info('Seeder de roles y permisos completado exitosamente.');
     }

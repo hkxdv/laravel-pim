@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\StockMovement;
-use App\Models\Product;
 use App\Models\StaffUsers;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\Inventory\App\Models\Product;
+use Modules\Inventory\App\Models\StockMovement;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\StockMovement>
+ * @extends Factory<StockMovement>
  */
 final class StockMovementFactory extends Factory
 {
@@ -20,7 +20,7 @@ final class StockMovementFactory extends Factory
     protected $model = StockMovement::class;
 
     /**
-     * Define the model's default state.
+     * Define el estado predeterminado del modelo.
      *
      * @return array<string, mixed>
      */
@@ -40,7 +40,7 @@ final class StockMovementFactory extends Factory
     }
 
     /**
-     * Outgoing movement.
+     * Movimiento de salida.
      */
     public function out(int $qty = 1): static
     {
@@ -52,7 +52,7 @@ final class StockMovementFactory extends Factory
     }
 
     /**
-     * Adjustment movement.
+     * Movimiento de ajuste.
      */
     public function adjust(int $toStock = 0): static
     {
@@ -64,7 +64,7 @@ final class StockMovementFactory extends Factory
     }
 
     /**
-     * Incoming movement.
+     * Movimiento de entrada.
      */
     public function in(int $qty = 1): static
     {
@@ -76,7 +76,7 @@ final class StockMovementFactory extends Factory
     }
 
     /**
-     * Bind to a specific product.
+     * Vincula el movimiento al producto especificado.
      */
     public function forProduct(Product $product): static
     {
@@ -86,7 +86,7 @@ final class StockMovementFactory extends Factory
     }
 
     /**
-     * Performed by a specific staff user.
+     * Vincula el movimiento al usuario especificado.
      */
     public function byUser(StaffUsers $user): static
     {
@@ -96,7 +96,7 @@ final class StockMovementFactory extends Factory
     }
 
     /**
-     * Custom notes.
+     * Notas personalizadas.
      */
     public function withNotes(string $notes): static
     {

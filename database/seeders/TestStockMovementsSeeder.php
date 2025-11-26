@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Modules\Inventory\App\Models\Product;
 use App\Models\StaffUsers;
-use Modules\Inventory\App\Models\StockMovement;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Modules\Inventory\App\Models\Product;
+use Modules\Inventory\App\Models\StockMovement;
 
 final class TestStockMovementsSeeder extends Seeder
 {

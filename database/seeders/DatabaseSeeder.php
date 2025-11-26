@@ -18,6 +18,9 @@ final class DatabaseSeeder extends Seeder
         $this->call([
             RolePermissionSeeder::class,
             SystemUsersSeeder::class,
+            // TestProductsSeeder::class,
+            // TestStockMovementsSeeder::class,
+            RealProductsSeeder::class,
 
         ]);
 

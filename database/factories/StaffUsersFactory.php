@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\StaffUsers>
+ * @extends Factory<StaffUsers>
  */
 final class StaffUsersFactory extends Factory
 {
@@ -22,12 +22,12 @@ final class StaffUsersFactory extends Factory
     protected $model = StaffUsers::class;
 
     /**
-     * The current password being used by the factory.
+     * La contraseña actual que está siendo utilizada por la factoría.
      */
     private static string $password = '';
 
     /**
-     * Define the model's default state.
+     * Define el estado predeterminado del modelo.
      *
      * @return array<string, mixed>
      */
@@ -45,7 +45,7 @@ final class StaffUsersFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indica que la dirección de correo electrónico del modelo debe estar no verificada.
      */
     public function unverified(): static
     {
