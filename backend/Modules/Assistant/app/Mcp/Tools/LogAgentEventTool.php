@@ -2,45 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Mcp\Tools;
+namespace Modules\Assistant\App\Mcp\Tools;
 
 use App\Models\AgentLog;
 use Illuminate\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 
+#[IsDestructive]
 final class LogAgentEventTool extends Tool
 {
-    /**
-     * Descripción del tool para el LLM.
-     */
     protected string $description = 'Registra un evento del agente en la tabla agent_logs con acción, estado y metadatos.';
 
-    /**
-     * Esquema JSON de entrada para validar los argumentos.
-     */
     public function inputSchema(): JsonSchema
     {
         return JsonSchema::object([
-            'action' => JsonSchema::string()->description(
-                'Acción realizada por el agente (ej: "busqueda", "navegacion", "pedido").'
-            ),
-            'status' => JsonSchema::string()->description(
-                'Estado del evento (ok, error, pending)'
-            )->default('ok'),
-            'payload' => JsonSchema::object()->description(
-                'Payload recibido o parámetros usados'
-            )->nullable(),
-            'meta' => JsonSchema::object()->description(
-                'Metadatos adicionales para trazabilidad'
-            )->nullable(),
+            'action' => JsonSchema::string()->description('Acción realizada por el agente (ej: "busqueda", "navegacion", "pedido").'),
+            'status' => JsonSchema::string()->description('Estado del evento (ok, error, pending)')->default('ok'),
+            'payload' => JsonSchema::object()->description('Payload recibido o parámetros usados')->nullable(),
+            'meta' => JsonSchema::object()->description('Metadatos adicionales para trazabilidad')->nullable(),
         ]);
     }
 
-    /**
-     * Manejo del tool: crea el registro en agent_logs y devuelve el id.
-     */
     public function handle(Request $request): Response
     {
         $data = $request->validate([
@@ -63,10 +48,10 @@ final class LogAgentEventTool extends Tool
         $log = AgentLog::query()->create([
             'agent_name' => 'mcp',
             'user_id' => null,
-            'module' => 'Module03',
+            'module' => 'MCP AgentOps',
             'action' => $action,
             'status' => $status,
-            'duration_ms' => 0, // se actualiza abajo
+            'duration_ms' => 0,
             'request_payload' => $payload,
             'response_payload' => null,
             'meta' => $meta,

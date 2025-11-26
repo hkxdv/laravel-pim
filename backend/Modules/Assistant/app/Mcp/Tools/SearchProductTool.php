@@ -2,24 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Mcp\Tools;
+namespace Modules\Assistant\App\Mcp\Tools;
 
 use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
-use Modules\Module01\App\Interfaces\InventoryManagerInterface;
+use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Modules\Assistant\App\Events\McpToolDebug;
+use Modules\Inventory\App\Interfaces\InventoryManagerInterface;
+use Throwable;
 
-final class BuscarProductoTool extends Tool
+#[IsReadOnly]
+#[IsIdempotent]
+final class SearchProductTool extends Tool
 {
-    /**
-     * Descripción del tool para el LLM.
-     */
     protected string $description = 'Busca productos en el catálogo por término y filtros básicos. Devuelve un resumen legible con SKU, nombre, precio y stock.';
 
-    /**
-     * Esquema JSON de entrada para validar los argumentos.
-     */
     public function inputSchema(): JsonSchema
     {
         return JsonSchema::object([
@@ -41,11 +43,11 @@ final class BuscarProductoTool extends Tool
         ]);
     }
 
-    /**
-     * Ejecuta la búsqueda y devuelve un resumen textual.
-     */
-    public function handle(Request $request, InventoryManagerInterface $inventory): Response
-    {
+    public function handle(
+        Request $request,
+        InventoryManagerInterface $inventory
+    ): Response {
+        Event::dispatch(new McpToolDebug('SearchProductTool', 'start'));
         $data = $request->validate([
             'search' => ['nullable', 'string', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
@@ -62,33 +64,60 @@ final class BuscarProductoTool extends Tool
             'per_page' => $data['per_page'] ?? 10,
         ];
 
-        $paginator = $inventory->getAllProducts($params);
+        try {
+            $paginator = $inventory->getAllProducts($params);
+        } catch (Throwable $throwable) {
+            Log::error(
+                'SearchProductTool inventory retrieval failed',
+                [
+                    'params' => $params,
+                    'exception' => $throwable::class,
+                    'message' => $throwable->getMessage(),
+                    'trace' => $throwable->getTraceAsString(),
+                ]
+            );
 
-        $header = sprintf(
-            'Resultados: %d productos encontrados. Mostrando %d por página.\n',
-            $paginator->total(),
-            $paginator->perPage()
-        );
+            throw $throwable;
+        }
+
+        $total = (int) $paginator->total();
+        $perPage = (int) $paginator->perPage();
+
+        if ($total === 0) {
+            $suggestions = [
+                'Prueba con menos palabras o un modelo más específico.',
+                'Si conoces el SKU, úsalo directamente.',
+            ];
+
+            $message = 'No se encontraron productos que coincidan con tu búsqueda.'
+                ."\n".mcp_suggestion_text($suggestions);
+
+            return Response::text($message)->asAssistant();
+        }
+
+        $header = mcp_list_header($total);
 
         $lines = [];
         foreach ($paginator->items() as $product) {
-            /** @var \App\Models\Product $product */
-            $lines[] = sprintf(
-                '- SKU %s | %s (%s %s) | Precio: %s | Stock: %d%s',
+            /** @var \Modules\Inventory\App\Models\Product $product */
+            $lines[] = mcp_product_line(
                 (string) $product->sku,
                 (string) $product->name,
                 (string) ($product->brand ?? 'N/A'),
                 (string) ($product->model ?? ''),
-                number_format((float) $product->price, 2, '.', ''),
+                (float) $product->price,
                 (int) $product->stock,
-                $product->is_active ? '' : ' | Inactivo'
+                (bool) $product->is_active
             );
         }
 
-        $body = $lines === []
-            ? 'No se encontraron productos para los criterios proporcionados.'
-            : implode("\n", $lines);
+        $text = $header."\n".implode("\n", $lines);
 
-        return Response::text($header.$body)->asAssistant();
+        Event::dispatch(new McpToolDebug('SearchProductTool', 'end', [
+            'total' => $total,
+            'per_page' => $perPage,
+        ]));
+
+        return Response::text($text)->asAssistant();
     }
 }

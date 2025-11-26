@@ -2,20 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Mcp\Tools;
+namespace Modules\Assistant\App\Mcp\Tools;
 
-use App\Models\Product;
 use Illuminate\JsonSchema\JsonSchema;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Modules\Assistant\App\Events\McpToolDebug;
+use Modules\Inventory\App\Models\Product;
 
-final class PrecioParaUsuarioTool extends Tool
+#[IsReadOnly]
+#[IsIdempotent]
+final class PriceForUserTool extends Tool
 {
-    /**
-     * Descripción del tool para el LLM.
-     */
     protected string $description = 'Calcula el precio para un usuario a partir del SKU, cantidad y multiplicador.';
 
     public function inputSchema(): JsonSchema
@@ -28,12 +31,10 @@ final class PrecioParaUsuarioTool extends Tool
                 'quantity' => JsonSchema::integer()->description(
                     'Cantidad solicitada'
                 )->default(1),
-                // Usamos string para el multiplicador para garantizar compatibilidad
-                // y lo convertimos a float en la lógica.
                 'multiplier' => JsonSchema::string()->description(
                     'Multiplicador de precio del usuario (por ejemplo, 0.8 para 20% descuento)'
                 )->nullable(),
-                'redondear' => JsonSchema::boolean()->description(
+                'round' => JsonSchema::boolean()->description(
                     'Si true, redondea a 2 decimales'
                 )->default(true),
             ],
@@ -44,16 +45,17 @@ final class PrecioParaUsuarioTool extends Tool
 
     public function handle(Request $request): Response
     {
+        Event::dispatch(new McpToolDebug('PriceForUserTool', 'start'));
         $validated = $request->validate([
             'sku' => ['required', 'string'],
             'quantity' => ['sometimes', 'integer', 'min:1'],
             'multiplier' => ['nullable'],
-            'redondear' => ['sometimes', 'boolean'],
+            'round' => ['sometimes', 'boolean'],
         ]);
 
         $skuVal = Arr::get($validated, 'sku');
         if (! is_string($skuVal)) {
-            return Response::error('SKU inválido')->asAssistant();
+            return mcp_error('SKU inválido');
         }
 
         $sku = $skuVal;
@@ -76,15 +78,15 @@ final class PrecioParaUsuarioTool extends Tool
             }
         }
 
-        $redondear = true;
-        if (array_key_exists('redondear', $validated)) {
-            $rVal = $validated['redondear'];
-            $redondear = is_bool($rVal) ? $rVal : true;
+        $round = true;
+        if (array_key_exists('round', $validated)) {
+            $rVal = $validated['round'];
+            $round = is_bool($rVal) ? $rVal : true;
         }
 
         $product = Product::query()->where('sku', $sku)->first();
         if (! $product) {
-            return Response::error('Producto no encontrado para SKU: '.$sku);
+            return mcp_error('Producto no encontrado', ['sku' => $sku]);
         }
 
         $unitBasePriceRaw = $product->price;
@@ -93,7 +95,7 @@ final class PrecioParaUsuarioTool extends Tool
         $unitFinalPrice = $unitBasePrice * $multiplier;
         $subtotal = $unitFinalPrice * $quantity;
 
-        if ($redondear) {
+        if ($round) {
             $unitBasePrice = round($unitBasePrice, 2);
             $unitFinalPrice = round($unitFinalPrice, 2);
             $subtotal = round($subtotal, 2);
@@ -110,10 +112,12 @@ final class PrecioParaUsuarioTool extends Tool
             'subtotal' => $subtotal,
         ];
 
-        return Response::json([
-            'status' => 'ok',
-            'data' => $payload,
-            'message' => 'Precio calculado correctamente',
-        ])->asAssistant();
+        Event::dispatch(new McpToolDebug('PriceForUserTool', 'end', [
+            'sku' => $sku,
+            'quantity' => $quantity,
+            'subtotal' => $subtotal,
+        ]));
+
+        return mcp_ok($payload, 'Precio calculado correctamente');
     }
 }
