@@ -40,7 +40,7 @@ final class StockMovement extends Model
     }
 
     /**
-     * @return BelongsTo<StaffUsers, $this>
+     * @return BelongsTo<\App\Models\StaffUsers, $this>
      */
     public function user(): BelongsTo
     {

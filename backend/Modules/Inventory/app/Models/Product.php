@@ -23,13 +23,10 @@ use Laravel\Scout\Searchable;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
- * @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\ProductFactory>
+ * @use HasFactory<\Database\Factories\ProductFactory>
  */
 final class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
-    use HasFactory;
-
     use Searchable;
     use SoftDeletes;
 
@@ -52,6 +49,11 @@ final class Product extends Model
         'is_active' => 'boolean',
         'metadata' => 'array',
     ];
+
+    public static function factory(): \Database\Factories\ProductFactory
+    {
+        return \Database\Factories\ProductFactory::new();
+    }
 
     /**
      * Nombre del índice/colección en el buscador.

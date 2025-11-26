@@ -25,7 +25,7 @@ interface ProductSearchInterface
      * - per_page?: int
      *
      * @param  array<string, mixed>  $params
-     * @return LengthAwarePaginator<int, \App\Models\Product>
+     * @return LengthAwarePaginator<int, \Modules\Inventory\App\Models\Product>
      */
     public function search(
         array $params = [],

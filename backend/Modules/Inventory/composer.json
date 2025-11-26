@@ -1,8 +1,6 @@
 {
   "name": "module/inventory",
-  "description": "",
   "type": "laravel-module",
-  "require": {},
   "autoload": {
     "psr-4": {
       "Modules\\Inventory\\App\\": "app/",
