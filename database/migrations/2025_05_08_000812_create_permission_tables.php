@@ -20,11 +20,11 @@ return new class extends Migration
         $columnNames = config('permission.column_names');
 
         throw_unless(is_array($tableNames),
-        Exception::class,
-        'Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
+            Exception::class,
+            'Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
         throw_unless(is_array($columnNames),
-        Exception::class,
-        'Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
+            Exception::class,
+            'Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
 
         $pivotRole = is_string(
             $columnNames['role_pivot_key'] ?? null
@@ -37,8 +37,8 @@ return new class extends Migration
         throw_if($teams && ! is_string(
             $columnNames['team_foreign_key'] ?? null
         ),
-        Exception::class,
-        'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
+            Exception::class,
+            'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
 
         $permissionsTable = $tableNames['permissions'] ?? null;
         throw_unless(
