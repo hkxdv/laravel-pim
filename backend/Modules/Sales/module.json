@@ -1,0 +1,9 @@
+{
+  "name": "Sales",
+  "alias": "sales",
+  "priority": 0,
+  "providers": [
+    "Modules\\Sales\\App\\Providers\\SalesServiceProvider",
+    "Modules\\Sales\\App\\Providers\\RouteServiceProvider"
+  ]
+}

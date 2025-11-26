@@ -1,7 +1,7 @@
 {
   "Admin": true,
-  "Module01": true,
-  "Module02": true,
-  "Module03": true,
-  "Auth": true
+  "Inventory": true,
+  "Sales": true,
+  "Assistant": true,
+  "WhatsApp": true
 }

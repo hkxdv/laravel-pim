@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
@@ -124,15 +125,17 @@ final class InternalDashboardController extends Controller
             ]);
 
             // Log de acceso exitoso
-            Log::info(
-                'Acceso exitoso al dashboard interno',
-                [
-                    'user_id' => $user->getAuthIdentifier(),
-                    'email' => $user->email,
-                    'ip' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                ]
-            );
+            if (Config::get('app.access-dashboard-debug')) {
+                Log::info(
+                    'Acceso exitoso al dashboard interno',
+                    [
+                        'user_id' => $user->getAuthIdentifier(),
+                        'email' => $user->email,
+                        'ip' => $request->ip(),
+                        'user_agent' => $request->userAgent(),
+                    ]
+                );
+            }
 
             // Renderizar la vista del dashboard
             return inertia('internal-dashboard', $viewData);

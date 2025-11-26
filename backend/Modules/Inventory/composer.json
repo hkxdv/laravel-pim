@@ -1,0 +1,11 @@
+{
+  "name": "module/inventory",
+  "type": "laravel-module",
+  "autoload": {
+    "psr-4": {
+      "Modules\\Inventory\\App\\": "app/",
+      "Modules\\Inventory\\Database\\Factories\\": "database/factories/",
+      "Modules\\Inventory\\Database\\Seeders\\": "database/seeders/"
+    }
+  }
+}

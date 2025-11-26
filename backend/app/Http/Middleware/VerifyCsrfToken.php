@@ -19,6 +19,9 @@ final class VerifyCsrfToken extends Middleware
         // el token CSRF para el resto de solicitudes y no puede verificarse a sí misma
         'sanctum/csrf-cookie',
 
+        'telescope/*',
+        'telescope-api/*',
+
         // Nota: Si alguna ruta muestra errores 419,
         // considere diagnosticar el problema específico en lugar de añadir excepciones.
     ];

@@ -8,11 +8,15 @@ parameters:
         - app
         - bootstrap/app.php
         - config
+        - Modules
         - ../database
         - public
         - routes
 
 
     level: max
+
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
 
     tmpDir: bootstrap/cache/phpstan

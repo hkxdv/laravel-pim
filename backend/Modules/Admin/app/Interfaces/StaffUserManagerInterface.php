@@ -36,7 +36,7 @@ interface StaffUserManagerInterface
      *                                        - sort_direction: Dirección de ordenamiento (asc/desc)
      *                                        - per_page: Número de elementos por página
      * @param  int  $perPage  Número predeterminado de elementos por página
-     * @return LengthAwarePaginator Lista paginada de usuarios
+     * @return LengthAwarePaginator<int, StaffUsers> Lista paginada de usuarios
      */
     public function getAllUsers(
         array $params = [],

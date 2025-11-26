@@ -21,6 +21,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
      *
      * @param  array<string, mixed>  $params  Parámetros para filtrado y ordenación
      * @param  int  $perPage  Número de elementos por página
+     * @return LengthAwarePaginator<int, StaffUsers>
      */
     public function getAllUsers(
         array $params = [],
@@ -33,8 +34,11 @@ final class AdminStaffUserService implements StaffUserManagerInterface
             ->with(['roles']);
 
         // Filtrado por término de búsqueda
-        if (! empty($params['search'])) {
-            $searchTerm = $params['search'];
+        $searchTerm = is_string(
+            $params['search'] ?? null
+        ) ? $params['search'] : '';
+
+        if ($searchTerm !== '') {
             $query->where(
                 function ($q) use ($searchTerm): void {
                     $q->where('name', 'like', sprintf('%%%s%%', $searchTerm))
@@ -44,18 +48,24 @@ final class AdminStaffUserService implements StaffUserManagerInterface
         }
 
         // Filtrado por rol específico
-        if (! empty($params['role'])) {
+        if (is_string($params['role'] ?? null) && $params['role'] !== '') {
             $query->whereHas(
                 'roles',
                 function ($q) use ($params): void {
-                    $q->where('name', $params['role']);
+                    $roleName = is_string($params['role']) ? $params['role'] : '';
+                    $q->where('name', $roleName);
                 }
             );
         }
 
         // Ordenamiento
-        $sortField = $params['sort_field'] ?? 'created_at';
-        $sortDirection = $params['sort_direction'] ?? 'desc';
+        $sortField = is_string(
+            $params['sort_field'] ?? null
+        ) ? $params['sort_field'] : 'created_at';
+
+        $sortDirection = is_string(
+            $params['sort_direction'] ?? null
+        ) ? $params['sort_direction'] : 'desc';
 
         // Verificar que el campo de ordenamiento es válido usando la constante de la interfaz
         if (in_array($sortField, self::ALLOWED_SORT_FIELDS, true)) {
@@ -65,10 +75,12 @@ final class AdminStaffUserService implements StaffUserManagerInterface
         }
 
         // Obtener número de elementos por página
-        $perPage = $params['per_page'] ?? $perPage;
+        $perPageLocal = is_numeric(
+            $params['per_page'] ?? null
+        ) ? (int) $params['per_page'] : $perPage;
 
         // Paginar los resultados
-        return $query->paginate($perPage);
+        return $query->paginate($perPageLocal);
     }
 
     /**
@@ -109,7 +121,13 @@ final class AdminStaffUserService implements StaffUserManagerInterface
 
         // Si se proporcionaron roles, sincronizarlos
         if (isset($data['roles']) && is_array($data['roles'])) {
-            $this->syncRoles($user, $data['roles']);
+            $rolesNormalized = array_values(
+                array_filter(
+                    $data['roles'],
+                    fn ($r): bool => is_int($r) || is_string($r) || $r instanceof Role
+                )
+            );
+            $this->syncRoles($user, $rolesNormalized);
         }
 
         return $user;
@@ -185,7 +203,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
             $roleName = is_string($role)
                 ? $role
                 : ($role instanceof Role
-                    ? $role->name
+                    ? (is_string($role->getAttribute('name')) ? $role->getAttribute('name') : '')
                     : null
                 );
 
@@ -198,11 +216,12 @@ final class AdminStaffUserService implements StaffUserManagerInterface
 
         // 2. Obtener los roles protegidos que el usuario ya tiene.
         $protectedRoles = $user->roles->filter(
-            fn ($role): bool => in_array(
-                mb_strtoupper((string) $role->name),
-                ['ADMIN', 'DEV'],
-                true
-            )
+            function ($role): bool {
+                $nameRaw = $role->getAttribute('name');
+                $name = is_string($nameRaw) ? $nameRaw : '';
+
+                return in_array(mb_strtoupper($name), ['ADMIN', 'DEV'], true);
+            }
         )->pluck('name')->all();
 
         // 3. Unir los roles asignables con los protegidos existentes.
@@ -254,7 +273,9 @@ final class AdminStaffUserService implements StaffUserManagerInterface
                 $role->id = (int) $role->id;
 
                 // Añadir una descripción según el nombre del rol
-                match (mb_strtoupper((string) $role->name)) {
+                $nameRaw = $role->getAttribute('name');
+                $name = is_string($nameRaw) ? $nameRaw : '';
+                match (mb_strtoupper($name)) {
                     'ADMIN' => $role->setAttribute(
                         'description',
                         'Acceso completo a todas las funciones del sistema'
@@ -273,7 +294,7 @@ final class AdminStaffUserService implements StaffUserManagerInterface
                     ),
                     default => $role->setAttribute(
                         'description',
-                        'Rol de '.$role->name
+                        'Rol de '.$name
                     ),
                 };
             }

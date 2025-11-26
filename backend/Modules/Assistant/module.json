@@ -1,0 +1,9 @@
+{
+  "name": "Assistant",
+  "alias": "assistant",
+  "priority": 0,
+  "providers": [
+    "Modules\\Assistant\\App\\Providers\\AssistantServiceProvider",
+    "Modules\\Assistant\\App\\Providers\\RouteServiceProvider"
+  ]
+}

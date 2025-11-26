@@ -22,11 +22,11 @@ final class ListController extends AdminBaseController
     public function __invoke(Request $request): InertiaResponse
     {
         $params = [
-            'search' => $request->input('search'),
-            'role' => $request->input('role'),
-            'sort_field' => $request->input('sort_field', 'created_at'),
-            'sort_direction' => $request->input('sort_direction', 'desc'),
-            'per_page' => (int) $request->input('per_page', 10),
+            'search' => is_string($request->input('search')) ? $request->input('search') : '',
+            'role' => is_string($request->input('role')) ? $request->input('role') : '',
+            'sort_field' => is_string($request->input('sort_field')) ? $request->input('sort_field') : 'created_at',
+            'sort_direction' => is_string($request->input('sort_direction')) ? $request->input('sort_direction') : 'desc',
+            'per_page' => is_numeric($request->input('per_page')) ? (int) $request->input('per_page') : 10,
         ];
 
         // Datos adicionales específicos para la vista de lista

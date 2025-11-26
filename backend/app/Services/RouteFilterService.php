@@ -7,6 +7,7 @@ namespace App\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Tighten\Ziggy\Ziggy;
 
 /**
@@ -173,8 +174,8 @@ final class RouteFilterService
         }
 
         // Si estamos en modo debug, loguear información útil
-        if (config('app.debug')) {
-            \Illuminate\Support\Facades\Log::debug('Ziggy route filtering', [
+        if (Config::get('app.ziggy_debug')) {
+            Log::debug('Ziggy route filtering', [
                 'patterns' => $patterns,
                 'total_routes' => count($routes),
                 'filtered_routes' => count($filteredRoutes),
@@ -190,13 +191,9 @@ final class RouteFilterService
      */
     private function patternToRegex(string $pattern): string
     {
-        // Escapar caracteres especiales de regex, excepto asteriscos
         $pattern = preg_quote($pattern, '/');
+        $pattern = str_replace('\\*', '.*', $pattern);
 
-        // Reemplazar asteriscos con el patrón adecuado
-        $pattern = str_replace('\*', '.*', $pattern);
-
-        // Crear regex completa
         return '/^'.$pattern.'$/';
     }
 }

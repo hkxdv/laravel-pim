@@ -1,0 +1,11 @@
+{
+  "name": "module/assistant",
+  "type": "laravel-module",
+  "autoload": {
+    "psr-4": {
+      "Modules\\Assistant\\App\\": "app/",
+      "Modules\\Assistant\\Database\\Factories\\": "database/factories/",
+      "Modules\\Assistant\\Database\\Seeders\\": "database/seeders/"
+    }
+  }
+}

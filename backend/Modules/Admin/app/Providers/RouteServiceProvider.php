@@ -19,14 +19,6 @@ final class RouteServiceProvider extends ServiceProvider
     private string $moduleNamespace = 'Modules\\Admin\\App\\Http\\Controllers';
 
     /**
-     * Registra los servicios del módulo.
-     */
-    public function register(): void
-    {
-        parent::register();
-    }
-
-    /**
      * Define las rutas del módulo.
      */
     public function boot(): void
