@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Modules\Inventory\App\Models\Product;
 use Illuminate\Database\Seeder;
+use Modules\Inventory\App\Models\Product;
 
 final class RealProductsSeeder extends Seeder
 {
