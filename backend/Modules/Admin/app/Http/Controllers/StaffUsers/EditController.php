@@ -29,7 +29,7 @@ final class EditController extends AdminBaseController
         // Obtener el usuario por ID con sus roles
         $user = $this->staffUserManager->getUserById($id);
 
-        abort_unless($user, 404, 'Usuario no encontrado');
+        abort_unless($user instanceof \App\Models\StaffUsers, 404, 'Usuario no encontrado');
 
         // Obtener todos los roles disponibles
         $roles = $this->staffUserManager->getAllRoles();
@@ -67,13 +67,16 @@ final class EditController extends AdminBaseController
                     );
             }
 
+            /** @var array<string, mixed> $validatedData */
             $validatedData = $request->validated();
 
             // Solo actualizar la contraseña si se proporciona una nueva
             if (empty($validatedData['password'])) {
                 unset($validatedData['password']);
             } else {
-                $validatedData['password'] = bcrypt($validatedData['password']);
+                $pwdRaw = $validatedData['password'] ?? '';
+                $pwd = is_string($pwdRaw) ? $pwdRaw : '';
+                $validatedData['password'] = bcrypt($pwd);
                 // Registrar fecha de cambio de contraseña
                 $validatedData['password_changed_at'] = now();
             }
@@ -81,16 +84,26 @@ final class EditController extends AdminBaseController
             $this->staffUserManager->updateUser($id, $validatedData);
 
             if ($request->has('roles')) {
-                $this->staffUserManager->syncRoles(
-                    $user,
-                    $request->input('roles', [])
-                );
+                $rolesInput = $request->input('roles', []);
+                $rolesNormalized = [];
+                if (is_array($rolesInput)) {
+                    foreach ($rolesInput as $r) {
+                        if (is_int($r) || is_string($r) || $r instanceof \Spatie\Permission\Models\Role) {
+                            $rolesNormalized[] = $r;
+                        }
+                    }
+                }
+
+                $this->staffUserManager->syncRoles($user, $rolesNormalized);
             }
+
+            $userNameRaw = $user->getAttribute('name');
+            $userName = is_string($userNameRaw) ? $userNameRaw : '';
 
             return to_route('internal.admin.users.index')
                 ->with(
                     'success',
-                    sprintf("Usuario '%s' actualizado exitosamente.", $user->name)
+                    sprintf("Usuario '%s' actualizado exitosamente.", $userName)
                 );
         } catch (Exception $exception) {
             // Loguear el error para análisis posterior
@@ -140,11 +153,12 @@ final class EditController extends AdminBaseController
             }
 
             // Verificar si el usuario tiene roles protegidos
-            $hasProtectedRole = $user->roles->contains(fn ($role): bool => in_array(
-                mb_strtoupper((string) $role->name),
-                ['ADMIN', 'DEV'],
-                true
-            ));
+            $hasProtectedRole = $user->roles->contains(function ($role): bool {
+                $nameRaw = $role->getAttribute('name');
+                $name = is_string($nameRaw) ? $nameRaw : '';
+
+                return in_array(mb_strtoupper($name), ['ADMIN', 'DEV'], true);
+            });
 
             if ($hasProtectedRole) {
                 return to_route('internal.admin.users.index')
@@ -158,10 +172,13 @@ final class EditController extends AdminBaseController
             $deleted = $this->staffUserManager->deleteUser($id);
 
             if ($deleted) {
+                $userNameRaw = $user->getAttribute('name');
+                $userName = is_string($userNameRaw) ? $userNameRaw : '';
+
                 return to_route('internal.admin.users.index')
                     ->with(
                         'success',
-                        sprintf("Usuario '%s' eliminado exitosamente.", $user->name)
+                        sprintf("Usuario '%s' eliminado exitosamente.", $userName)
                     );
             }
 

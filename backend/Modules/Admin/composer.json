@@ -1,5 +1,5 @@
 {
-  "name": "new-module-custom/admin",
+  "name": "module/admin",
   "type": "laravel-module",
   "autoload": {
     "psr-4": {
