@@ -44,6 +44,7 @@ return RectorConfig::configure()
         RectorLaravel\Rector\ArrayDimFetch\ServerVariableToRequestFacadeRector::class => [
             __DIR__.'/bootstrap/app.php',
         ],
+        RectorLaravel\Rector\Class_\AddHasFactoryToModelsRector::class,
     ])
     ->withPreparedSets(
         deadCode: true,

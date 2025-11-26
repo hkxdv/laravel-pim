@@ -18,13 +18,14 @@
     "spatie/laravel-permission": "^6.21",
     "symfony/http-client": "*",
     "tightenco/ziggy": "^2.6",
+    "twilio/sdk": "^8.8",
     "typesense/typesense-php": "^5.1"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.0.7",
     "fakerphp/faker": "^1.24.1",
     "larastan/larastan": "^3.7",
-    "laravel/boost": "^1.2.1",
+    "laravel/boost": "^1.6",
     "laravel/pail": "^1.2.3",
     "laravel/pint": "^1.25.1",
     "laravel/telescope": "^5.13",
