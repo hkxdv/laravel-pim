@@ -14,12 +14,12 @@ import { getLucideIcon, type IconName } from '@/utils/lucide-icons';
 import { extractUserData } from '@/utils/user-data';
 import { usePage } from '@inertiajs/react';
 import { useMemo } from 'react';
-import type { Module02IndexPageProps } from './interfaces';
+import type { SalesIndexPageProps } from './interfaces';
 
 /**
- * Componente del panel principal del Módulo 02.
+ * Componente del panel principal del Módulo de Ventas.
  */
-export default function Module02IndexPanel() {
+export default function SalesIndexPanel() {
   const {
     auth,
     panelItems,
@@ -29,7 +29,7 @@ export default function Module02IndexPanel() {
     stats,
     breadcrumbs,
     flash,
-  } = usePage<Module02IndexPageProps>().props;
+  } = usePage<SalesIndexPageProps>().props;
 
   const isNavigating = useNavigationProgress({ delayMs: 150 });
 
@@ -41,18 +41,25 @@ export default function Module02IndexPanel() {
   const computedBreadcrumbs: BreadcrumbItem[] =
     breadcrumbs && breadcrumbs.length > 0
       ? breadcrumbs
-      : createBreadcrumbs('internal.module02.index', pageTitle ?? '');
+      : createBreadcrumbs('internal.sales.index', pageTitle ?? '');
 
   // Crear estadísticas  para el módulo a partir de los datos del backend
   const moduleStats: EnhancedStat[] = useMemo(() => {
     if (!stats) return [];
     const out: EnhancedStat[] = [];
     if (typeof stats.ordersTotal === 'number') {
-      out.push(buildStat('Órdenes', stats.ordersTotal, 'Total de órdenes', 'ListOrdered' as IconName));
+      out.push(
+        buildStat('Órdenes', stats.ordersTotal, 'Total de órdenes', 'ListOrdered' as IconName),
+      );
     }
     if (typeof stats.deliveredOrders === 'number') {
       out.push(
-        buildStat('Entregadas', stats.deliveredOrders, 'Órdenes entregadas', 'CheckCircle2' as IconName),
+        buildStat(
+          'Entregadas',
+          stats.deliveredOrders,
+          'Órdenes entregadas',
+          'CheckCircle2' as IconName,
+        ),
       );
     }
     if (typeof stats.sumTotals === 'number') {
@@ -79,9 +86,7 @@ export default function Module02IndexPanel() {
         items={panelItems ?? []}
         getIconComponent={getLucideIcon}
         headerTitle="Secciones del Módulo"
-        headerDescription="Gestione órdenes y reportes del módulo."
-        emptyStateMessage="No hay secciones disponibles en el Módulo de Solicitud de Trámites por el momento."
-        emptyStateIcon="LayoutDashboard"
+        headerDescription="Acceda a las distintas secciones disponibles."
       />
     ),
     [isNavigating, panelItems],
