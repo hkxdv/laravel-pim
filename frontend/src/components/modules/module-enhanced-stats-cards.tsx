@@ -36,7 +36,7 @@ export function EnhancedStatsCards({ stats }: Readonly<{ stats: EnhancedStat[] }
             className="border-border bg-card overflow-hidden rounded-lg border shadow-sm"
           >
             <div className="flex items-center p-5">
-              <div className="border-border bg-muted flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border">
+              <div className="border-border bg-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-full border">
                 <IconComponent
                   className="text-muted-foreground h-6 w-6"
                   aria-hidden="true"

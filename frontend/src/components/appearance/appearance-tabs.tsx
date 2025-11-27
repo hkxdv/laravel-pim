@@ -54,7 +54,7 @@ export default function AppearanceToggleTab({
                 setTheme(value);
               }}
               className={cn(
-                'group relative flex min-w-[5rem] flex-col items-center px-2 pt-3 pb-2 transition-colors outline-none',
+                'group relative flex min-w-20 flex-col items-center px-2 pt-3 pb-2 transition-colors outline-none',
                 isActive
                   ? 'text-neutral-900 dark:text-neutral-100'
                   : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200',
@@ -81,7 +81,7 @@ export default function AppearanceToggleTab({
               <span
                 aria-hidden="true"
                 className={cn(
-                  'pointer-events-none absolute inset-x-0 -bottom-[1px] h-[3px] rounded bg-neutral-900 transition-opacity dark:bg-neutral-100',
+                  'pointer-events-none absolute inset-x-0 -bottom-px h-[3px] rounded bg-neutral-900 transition-opacity dark:bg-neutral-100',
                   isActive ? 'opacity-100' : 'opacity-0',
                 )}
               />
@@ -89,7 +89,7 @@ export default function AppearanceToggleTab({
               {/* Focus ring for accessibility */}
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-0 rounded-md ring-0 ring-blue-500 group-focus-visible:ring-2 focus:!ring-2 focus:!ring-offset-2 focus:!ring-offset-white dark:focus:!ring-offset-neutral-900"
+                className="pointer-events-none absolute inset-0 rounded-md ring-0 ring-blue-500 group-focus-visible:ring-2 focus:ring-2! focus:ring-offset-2! focus:ring-offset-white! dark:focus:ring-offset-neutral-900!"
               />
             </button>
           );

@@ -10,7 +10,7 @@ export function EnhancedStatsCardsSkeleton({ count = 4 }: Readonly<Props>) {
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="border-border bg-card overflow-hidden rounded-lg border shadow-sm">
           <div className="flex items-center p-5">
-            <div className="border-border bg-muted flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border">
+            <div className="border-border bg-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-full border">
               <Skeleton className="h-6 w-6 rounded" />
             </div>
             <div className="ml-5 w-0 flex-1">

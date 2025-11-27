@@ -80,7 +80,7 @@ export const CustomFileInput = React.forwardRef<HTMLInputElement, CustomFileInpu
           type="button"
           variant="outline"
           onClick={handleButtonClick}
-          className="flex-grow"
+          className="grow"
           disabled={props.disabled}
         >
           <div className="flex w-full items-center justify-between">

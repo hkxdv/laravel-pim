@@ -55,7 +55,7 @@ export function SearchFilters({
     <div className={cn('space-y-4', className)}>
       <div className="flex flex-wrap items-center gap-2">
         {showSearch && (
-          <div className="relative flex-grow">
+          <div className="relative grow">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               type="text"

@@ -204,7 +204,7 @@ export default function DashboardPage() {
                           <Skeleton className="h-4 w-64 rounded-md" />
                         )}
                         <div className="mt-8 flex items-center justify-center space-x-2 rounded-md border border-yellow-200 bg-yellow-50 p-2 text-sm text-yellow-700 dark:border-yellow-700/50 dark:bg-yellow-900/30 dark:text-yellow-400">
-                          <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
+                          <LayoutDashboard className="h-4 w-4 shrink-0" />
                           <span>Acceso restringido</span>
                         </div>
                       </div>

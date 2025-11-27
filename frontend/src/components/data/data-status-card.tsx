@@ -85,12 +85,12 @@ export function StatusCard({
   return (
     <Card className={cn(styles.cardBg, styles.border, 'overflow-hidden', className)}>
       <CardContent className="flex items-center p-4">
-        <div className="mr-3 flex-shrink-0">{iconToRender}</div>
-        <div className="flex-grow">
+        <div className="mr-3 shrink-0">{iconToRender}</div>
+        <div className="grow">
           <h3 className={cn('font-semibold', styles.title)}>{title}</h3>
           <p className={cn('text-sm', styles.message)}>{message}</p>
         </div>
-        {actions && <div className="ml-auto flex-shrink-0">{actions}</div>}
+        {actions && <div className="ml-auto shrink-0">{actions}</div>}
       </CardContent>
     </Card>
   );

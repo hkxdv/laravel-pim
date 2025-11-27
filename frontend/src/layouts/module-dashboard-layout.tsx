@@ -27,7 +27,7 @@ export function ModuleDashboardLayout({
   actions,
   mainContent,
   sideContent,
-  showGreeting = true,
+  showGreeting = false,
   fullWidth = true,
 }: Readonly<DashboardLayoutProps>) {
   return (
