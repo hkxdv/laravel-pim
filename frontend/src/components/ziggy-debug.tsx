@@ -36,7 +36,7 @@ export function ZiggyDebug() {
               <h3 className="mb-2 font-medium">Available Routes:</h3>
               <pre className="bg-muted rounded p-2 text-xs whitespace-pre-wrap">
                 {JSON.stringify(
-                  Object.keys(ziggy.routes).sort((a, b) => a.localeCompare(b)),
+                  Object.keys(ziggy.routes).toSorted((a, b) => a.localeCompare(b)),
                   null,
                   2,
                 )}

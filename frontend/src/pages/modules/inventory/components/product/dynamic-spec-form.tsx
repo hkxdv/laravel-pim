@@ -9,7 +9,7 @@ import {
   type ProductMetadataValues,
   type ProductSpecDefinition,
   type SpecField,
-} from '@/types/product-spec';
+} from '@/pages/modules/inventory/types/product-spec';
 import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 

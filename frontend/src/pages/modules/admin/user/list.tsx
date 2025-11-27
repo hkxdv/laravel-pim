@@ -78,12 +78,12 @@ const normalizePaginated = <T,>(
   }
 
   // Si ya tiene la estructura correcta (meta anidado), retornar tal cual
-  if ('meta' in input && input.meta) {
+  if ('meta' in input) {
     return input;
   }
 
   // Si es la respuesta estándar de Laravel (propiedades planas), transformarla
-  const laravelResponse = input as LaravelPaginatedResponse<T>;
+  const laravelResponse = input;
   if ('current_page' in laravelResponse && Array.isArray(laravelResponse.data)) {
     const meta: PaginatedMeta = {
       current_page: laravelResponse.current_page,
@@ -137,12 +137,12 @@ const normalizeFilters = (
 
   // Si es un objeto, asegurar que las propiedades sean strings o undefined
   const f = filters as Record<string, unknown>;
-  return {
-    search: typeof f['search'] === 'string' ? f['search'] : undefined,
-    role: typeof f['role'] === 'string' ? f['role'] : undefined,
-    sort_field: typeof f['sort_field'] === 'string' ? f['sort_field'] : undefined,
-    sort_direction: typeof f['sort_direction'] === 'string' ? f['sort_direction'] : undefined,
-  };
+  const out: { search?: string; role?: string; sort_field?: string; sort_direction?: string } = {};
+  if (typeof f['search'] === 'string') out.search = f['search'];
+  if (typeof f['role'] === 'string') out.role = f['role'];
+  if (typeof f['sort_field'] === 'string') out.sort_field = f['sort_field'];
+  if (typeof f['sort_direction'] === 'string') out.sort_direction = f['sort_direction'];
+  return out;
 };
 
 export default function UserListPage({

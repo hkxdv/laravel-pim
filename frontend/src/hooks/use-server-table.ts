@@ -7,6 +7,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { type RequestPayload, router } from '@inertiajs/core';
 import type { PaginationState, SortingState } from '@tanstack/react-table';
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { route } from 'ziggy-js';
 
 export interface UseServerTableOptions {
   /** Nombre de la ruta Ziggy, por ejemplo: 'internal.admin.users.index' */

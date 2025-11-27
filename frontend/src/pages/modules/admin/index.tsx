@@ -4,10 +4,8 @@
  */
 import { buildStat } from '@/components/modules/helper/build-stat';
 import { EnhancedStatsCards } from '@/components/modules/module-enhanced-stats-cards';
-import { ModuleNavCards } from '@/components/modules/module-nav-cards';
+import { ModuleIndexContent } from '@/components/modules/module-index-content';
 import { EnhancedStatsCardsSkeleton } from '@/components/modules/skeletons/module-enhanced-stats-cards-skeleton';
-import { ModuleNavCardsSkeleton } from '@/components/modules/skeletons/module-nav-cards-skeleton';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useFlashToasts } from '@/hooks/use-flash-toasts';
 import { useNavigationProgress } from '@/hooks/use-navigation-progress';
 import AppLayout from '@/layouts/app-layout';
@@ -86,28 +84,15 @@ export default function AdminIndexPage() {
 
   // Contenido principal
   const mainContent = useMemo(
-    () =>
-      isNavigating || !panelItems ? (
-        <div>
-          <div className="mb-6 space-y-2">
-            <Skeleton className="h-6 w-48 rounded-md" />
-            <Skeleton className="h-4 w-72 rounded-md" />
-          </div>
-          <ModuleNavCardsSkeleton />
-        </div>
-      ) : (
-        <div>
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-              Secciones del Módulo
-            </h2>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              Seleccione una opción para gestionar el sistema.
-            </p>
-          </div>
-          <ModuleNavCards items={panelItems} getIconComponent={getLucideIcon} />
-        </div>
-      ),
+    () => (
+      <ModuleIndexContent
+        isLoading={isNavigating || !panelItems}
+        items={panelItems ?? []}
+        getIconComponent={getLucideIcon}
+        headerTitle="Secciones del Módulo"
+        headerDescription="Acceda a las distintas secciones disponibles."
+      />
+    ),
     [isNavigating, panelItems],
   );
 
