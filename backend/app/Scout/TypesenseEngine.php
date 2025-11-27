@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Scout;
 
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
@@ -25,11 +26,11 @@ final class TypesenseEngine extends Engine
     ) {}
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Collection<int, Model>  $models
+     * @param  EloquentCollection<int, Model>  $models
      */
     public function update($models): void
     {
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Model> $models */
+        /** @var EloquentCollection<int, Model> $models */
         if ($models->isEmpty()) {
             return;
         }
@@ -44,11 +45,11 @@ final class TypesenseEngine extends Engine
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Collection<int, Model>  $models
+     * @param  EloquentCollection<int, Model>  $models
      */
     public function delete($models): void
     {
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Model> $models */
+        /** @var EloquentCollection<int, Model> $models */
         if ($models->isEmpty()) {
             return;
         }
@@ -71,9 +72,10 @@ final class TypesenseEngine extends Engine
         $this->ensureCollectionExists($builder->model);
 
         $params = $this->buildSearchParams($builder);
+        $documents = $this->client->collections[$indexName]->documents;
 
         /** @var array<string, mixed> $response */
-        $response = $this->client->collections[$indexName]->documents->search($params);
+        $response = $documents->search($params);
 
         return $response;
     }
@@ -93,8 +95,10 @@ final class TypesenseEngine extends Engine
         $params['per_page'] = (int) $perPage;
         $params['page'] = (int) $page;
 
+        $documents = $this->client->collections[$indexName]->documents;
+
         /** @var array<string, mixed> $response */
-        $response = $this->client->collections[$indexName]->documents->search($params);
+        $response = $documents->search($params);
 
         return $response;
     }
@@ -103,9 +107,9 @@ final class TypesenseEngine extends Engine
      * @param  Builder<Model>  $builder
      * @param  array<string, mixed>  $results
      * @param  Model  $model
-     * @return \Illuminate\Database\Eloquent\Collection<int, Model>
+     * @return EloquentCollection<int, Model>
      */
-    public function map(Builder $builder, $results, $model): \Illuminate\Database\Eloquent\Collection
+    public function map(Builder $builder, $results, $model): EloquentCollection
     {
         /** @var array<int, array<string, mixed>> $hits */
         $hits = (array) ($results['hits'] ?? []);
@@ -113,33 +117,36 @@ final class TypesenseEngine extends Engine
             return $model->newCollection();
         }
 
-        /** @var array<int, string|int> $ids */
-        $ids = [];
-        foreach ($hits as $hit) {
-            /** @var array<string, mixed> $doc */
-            $doc = (array) ($hit['document'] ?? []);
-            if (isset($doc['id'])) {
-                $id = $doc['id'];
-                if (is_int($id) || is_string($id)) {
-                    $ids[] = $id;
-                }
-            }
-        }
+        /** @var array<int, string|int|null> $rawIds */
+        $rawIds = array_map(
+            static function (array $hit): int|string|null {
+                $doc = (array) ($hit['document'] ?? []);
+                $id = $doc['id'] ?? null;
 
+                return is_int($id) || is_string($id) ? $id : null;
+            },
+            $hits
+        );
+
+        /** @var array<int, string|int> $ids */
+        $ids = array_values(
+            array_filter(
+                $rawIds,
+                static fn (int|string|null $id): bool => $id !== null
+            )
+        );
         if ($ids === []) {
             return $model->newCollection();
         }
 
-        // Attempt to cast IDs to original key type when possible
-        $keyType = $model->getKeyType();
-        if ($keyType === 'int') {
+        if ($model->getKeyType() === 'int') {
             $ids = array_map(
                 static fn (int|string $id): int => (int) $id,
                 $ids
             );
         }
 
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Model> $models */
+        /** @var EloquentCollection<int, Model> $models */
         $models = $model->newQuery()->whereKey($ids)->get();
 
         return $models;
@@ -155,10 +162,7 @@ final class TypesenseEngine extends Engine
      */
     public function lazyMap(Builder $builder, $results, $model): LazyCollection
     {
-        /** @var LazyCollection<int, Model> $lazy */
-        $lazy = $this->map($builder, $results, $model)->lazy();
-
-        return $lazy;
+        return $this->map($builder, $results, $model)->lazy();
     }
 
     /**
@@ -192,7 +196,11 @@ final class TypesenseEngine extends Engine
     {
         $found = $results['found'] ?? 0;
 
-        return is_int($found) ? $found : (is_numeric($found) ? (int) $found : 0);
+        return is_int(
+            $found
+        ) ? $found : (
+            is_numeric($found) ? (int) $found : 0
+        );
     }
 
     public function flush($model): void
@@ -295,15 +303,9 @@ final class TypesenseEngine extends Engine
             'query_by' => $queryBy,
         ];
 
-        // Allow overriding via builder->options
         /** @var array<string, mixed> $options */
         $options = $builder->options;
-        $optQueryBy = $options['query_by'] ?? null;
-        if (is_string($optQueryBy) && $optQueryBy !== '') {
-            $params['query_by'] = $optQueryBy;
-        }
 
-        // Filters: convert where array into Typesense filter_by string
         /** @var array<array-key, mixed> $wheres */
         $wheres = $builder->wheres;
         $filterBy = $this->convertWheresToFilterBy($wheres);
@@ -311,13 +313,6 @@ final class TypesenseEngine extends Engine
             $params['filter_by'] = $filterBy;
         }
 
-        // If options.filter_by provided, override constructed filter_by
-        $optFilterBy = $options['filter_by'] ?? null;
-        if (is_string($optFilterBy) && $optFilterBy !== '') {
-            $params['filter_by'] = $optFilterBy;
-        }
-
-        // Sorting: translate orders to sort_by
         /** @var array<int, array<string, mixed>> $orders */
         $orders = $builder->orders;
         $sortBy = $this->convertOrdersToSortBy($orders);
@@ -325,36 +320,26 @@ final class TypesenseEngine extends Engine
             $params['sort_by'] = $sortBy;
         }
 
-        // If options.sort_by provided, override constructed sort_by
-        $optSortBy = $options['sort_by'] ?? null;
-        if (is_string($optSortBy) && $optSortBy !== '') {
-            $params['sort_by'] = $optSortBy;
+        foreach (
+            [
+                'query_by',
+                'filter_by',
+                'sort_by',
+                'highlight_fields',
+                'highlight_full_fields',
+                'highlight_start_tag',
+                'highlight_end_tag',
+            ] as $key
+        ) {
+            $val = $options[$key] ?? null;
+            if (is_string($val) && $val !== '') {
+                $params[$key] = $val;
+            }
         }
 
-        // Highlighting options pass-through (if provided)
-        $optHighlightFields = $options['highlight_fields'] ?? null;
-        if (is_string($optHighlightFields) && $optHighlightFields !== '') {
-            $params['highlight_fields'] = $optHighlightFields;
-        }
-
-        $optHighlightFullFields = $options['highlight_full_fields'] ?? null;
-        if (is_string($optHighlightFullFields) && $optHighlightFullFields !== '') {
-            $params['highlight_full_fields'] = $optHighlightFullFields;
-        }
-
-        $optHighlightStartTag = $options['highlight_start_tag'] ?? null;
-        if (is_string($optHighlightStartTag) && $optHighlightStartTag !== '') {
-            $params['highlight_start_tag'] = $optHighlightStartTag;
-        }
-
-        $optHighlightEndTag = $options['highlight_end_tag'] ?? null;
-        if (is_string($optHighlightEndTag) && $optHighlightEndTag !== '') {
-            $params['highlight_end_tag'] = $optHighlightEndTag;
-        }
-
-        $optSnippetThreshold = $options['snippet_threshold'] ?? null;
-        if (is_numeric($optSnippetThreshold)) {
-            $params['snippet_threshold'] = (int) $optSnippetThreshold;
+        $snippet = $options['snippet_threshold'] ?? null;
+        if (is_numeric($snippet)) {
+            $params['snippet_threshold'] = (int) $snippet;
         }
 
         return $params;
@@ -385,32 +370,12 @@ final class TypesenseEngine extends Engine
 
             return;
         } catch (Throwable) {
-            // proceed to create the collection
         }
 
-        /** @var array<string, mixed> $schema */
         $schema = $this->getCollectionSchema($model);
-
-        // Ensure id field exists
         /** @var array<int, array<string, mixed>> $fields */
         $fields = (array) ($schema['fields'] ?? []);
-        $hasId = false;
-        foreach ($fields as $f) {
-            if (($f['name'] ?? '') === 'id') {
-                $hasId = true;
-                break;
-            }
-        }
-
-        if (! $hasId) {
-            array_unshift($fields, [
-                'name' => 'id',
-                'type' => 'string',
-            ]);
-        }
-
-        $schema['fields'] = $fields;
-
+        $schema['fields'] = $this->ensureIdFieldPresent($fields);
         $schema['name'] = $indexName;
 
         $this->client->collections->create($schema);
@@ -453,6 +418,61 @@ final class TypesenseEngine extends Engine
         return $schema;
     }
 
+    private function formatWhereSegment(string $field, mixed $value): string
+    {
+        if (is_bool($value)) {
+            return sprintf('%s:=%s', $field, $value ? 'true' : 'false');
+        }
+
+        if (is_numeric($value)) {
+            return sprintf('%s:=%s', $field, (string) $value);
+        }
+
+        if (is_string($value)) {
+            $escaped = str_replace('"', '\\"', $value);
+
+            return sprintf('%s:="%s"', $field, $escaped);
+        }
+
+        return '';
+    }
+
+    /**
+     * @param  array<string, mixed>  $order
+     */
+    private function formatOrderSegment(array $order): string
+    {
+        $columnRaw = $order['column'] ?? null;
+        $column = is_string($columnRaw) ? $columnRaw : '';
+        $directionRaw = $order['direction'] ?? null;
+        $direction = mb_strtolower(
+            is_string($directionRaw) ? $directionRaw : 'asc'
+        ) === 'desc' ? 'desc' : 'asc';
+
+        if ($column === '') {
+            return '';
+        }
+
+        return sprintf('%s:%s', $column, $direction);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $fields
+     * @return array<int, array<string, mixed>>
+     */
+    private function ensureIdFieldPresent(array $fields): array
+    {
+        foreach ($fields as $f) {
+            if (($f['name'] ?? '') === 'id') {
+                return $fields;
+            }
+        }
+
+        array_unshift($fields, ['name' => 'id', 'type' => 'string']);
+
+        return $fields;
+    }
+
     /**
      * @param  array<array-key, mixed>  $wheres
      */
@@ -462,17 +482,11 @@ final class TypesenseEngine extends Engine
             return '';
         }
 
-        /** @var array<int, string> $parts */
         $parts = [];
         foreach ($wheres as $field => $value) {
-            if (is_bool($value)) {
-                $parts[] = sprintf('%s:=%s', (string) $field, $value ? 'true' : 'false');
-            } elseif (is_numeric($value)) {
-                $parts[] = sprintf('%s:=%s', (string) $field, (string) $value);
-            } elseif (is_string($value)) {
-                // Quote string values
-                $escaped = str_replace('"', '\\"', $value);
-                $parts[] = sprintf('%s:="%s"', (string) $field, $escaped);
+            $seg = $this->formatWhereSegment((string) $field, $value);
+            if ($seg !== '') {
+                $parts[] = $seg;
             }
         }
 
@@ -488,15 +502,11 @@ final class TypesenseEngine extends Engine
             return '';
         }
 
-        /** @var array<int, string> $parts */
         $parts = [];
         foreach ($orders as $order) {
-            $columnRaw = $order['column'] ?? null;
-            $column = is_string($columnRaw) ? $columnRaw : '';
-            $directionRaw = $order['direction'] ?? null;
-            $direction = mb_strtolower(is_string($directionRaw) ? $directionRaw : 'asc') === 'desc' ? 'desc' : 'asc';
-            if ($column !== '') {
-                $parts[] = sprintf('%s:%s', $column, $direction);
+            $seg = $this->formatOrderSegment($order);
+            if ($seg !== '') {
+                $parts[] = $seg;
             }
         }
 
