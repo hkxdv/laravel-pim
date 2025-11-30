@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace Modules\WhatsApp\App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
