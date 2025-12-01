@@ -137,6 +137,21 @@ final class WhatsAppConversationService
     }
 
     /**
+     * Verifica si la sesión está actualmente pausada o silenciada.
+     */
+    public function isPaused(WhatsAppSession $session): bool
+    {
+        $meta = is_array($session->meta) ? $session->meta : [];
+        $hardPaused = (bool) ($meta['hard_paused'] ?? false);
+
+        if ($session->muted_until && Date::now()->lt($session->muted_until)) {
+            return true;
+        }
+
+        return $hardPaused;
+    }
+
+    /**
      * Marca que el mensaje de bienvenida ha sido mostrado.
      *
      * @param  WhatsAppSession  $session  Sesión a actualizar.
@@ -162,16 +177,14 @@ final class WhatsAppConversationService
         bool $forever = false
     ): WhatsAppSession {
         if ($minutes !== null) {
-            $session->muted_until = Date::now()
-                ->addMinutes($minutes)
-                ->toImmutable();
+            $session->muted_until = Date::now()->addMinutes($minutes);
         } elseif ($forever) {
             $session->muted_until = null; // Forever no usa muted_until temporal
         }
 
         // Nota: pauseGate (minutes=null, forever=false) mantiene muted_until como esté o null
 
-        $phone = $session->getAttribute('phone');
+        $phone = $session->phone;
 
         $this->updateMeta($session, [
             'resume_sent_at' => null,
@@ -206,13 +219,13 @@ final class WhatsAppConversationService
 
         if (is_string($enabledAtRaw) && $enabledAtRaw !== '') {
             $enabledAt = Date::parse($enabledAtRaw);
-            if ($enabledAt->copy()->addMinutes($expireMin)->isPast()) {
+            // Si ha expirado, deshabilitamos y persistimos el cambio para mantener la consistencia en BD.
+            if (
+                $enabledAt->copy()->addMinutes($expireMin)->isPast()
+                && $session->search_enabled
+            ) {
                 $session->search_enabled = false;
-                // No guardamos aquí, se guarda solo si se modifica algo más adelante o por llamada explícita,
-                // pero para consistencia en 'get', si cambia el estado, debería persistirse?
-                // El código original no hacía save() explícito en get(),
-                // pero modificaba la propiedad en memoria.
-                // Si el llamador usa el objeto, verá search_enabled false.
+                $session->save();
             }
         }
     }

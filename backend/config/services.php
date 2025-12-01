@@ -37,10 +37,13 @@ return [
         'gate_greeting' => env('WHATSAPP_GATE_GREETING', ''),
         'gate_always' => env('WHATSAPP_GATE_ALWAYS', 'true'),
         'gate_expire_minutes' => env('WHATSAPP_GATE_EXPIRE_MINUTES', 1440),
-        'gate_template_sid' => env('WHATSAPP_GATE_TEMPLATE_SID', ''),
+        'welcome_template_sid' => env('WHATSAPP_WELCOME_TEMPLATE_SID', ''),
         'resume_template_sid' => env('WHATSAPP_RESUME_TEMPLATE_SID', ''),
         'query_template_sid' => env('WHATSAPP_QUERY_TEMPLATE_SID', ''),
         'results_template_sid' => env('WHATSAPP_RESULTS_TEMPLATE_SID', ''),
         'no_results_template_sid' => env('WHATSAPP_NO_RESULTS_TEMPLATE_SID', ''),
+        'pause_options_template_sid' => env('WHATSAPP_PAUSE_OPTIONS_TEMPLATE_SID', ''),
+        'dynamic_template_sid' => env('WHATSAPP_DYNAMIC_TEMPLATE_SID', ''),
     ],
+
 ];
